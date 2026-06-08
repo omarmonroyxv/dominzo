@@ -140,6 +140,9 @@ header.nav.scrolled{border-bottom-color:var(--line);background:rgba(251,251,253,
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .trust{display:flex;gap:26px;flex-wrap:wrap;margin-top:38px;color:var(--mut);font-size:13px;font-weight:500}
 .trust span{display:flex;align-items:center;gap:7px}.trust svg{color:var(--green);flex-shrink:0}
+.social-proof{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:13.5px;color:var(--mut)}
+.social-proof .stars{color:#ffb020;letter-spacing:1px;font-size:15px}
+.social-proof b{color:var(--ink)}
 @media(max-width:920px){.hero-grid{grid-template-columns:1fr;gap:60px}.hero-visual{max-width:460px;margin:0 auto}.hero p.sub{max-width:none}}
 
 /* logos band */
@@ -262,6 +265,30 @@ section.blk{padding:96px 0}
 .dash-side .item{padding:11px 13px;border-radius:11px;color:var(--ink2);font-size:14px;margin-bottom:3px;display:flex;gap:11px;align-items:center;cursor:pointer;font-weight:500;transition:.13s}
 .dash-side .item:hover{background:var(--bg-soft)}
 .dash-side .item.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.dash-side .item svg{width:18px;height:18px;flex-shrink:0;opacity:.85}
+.stat{position:relative;overflow:hidden}
+.stat .stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.stat .stat-ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--brand-soft);color:var(--brand)}
+.stat .stat-ico svg{width:18px;height:18px}
+.stat .spark{display:flex;align-items:flex-end;gap:3px;height:26px;margin-top:12px}
+.stat .spark span{flex:1;background:var(--brand-soft);border-radius:3px;min-height:4px;transition:.3s}
+.stat:hover .spark span{background:var(--brand2)}
+.badge-trend{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+.badge-trend.up{background:var(--green-soft);color:var(--green)}
+.badge-trend.neutral{background:var(--bg-soft2);color:var(--mut)}
+/* promo badge en resultados */
+.res-promo{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:7px;background:linear-gradient(120deg,#ff6b6b,#ff8e53);color:#fff;letter-spacing:.2px;box-shadow:0 2px 8px rgba(255,107,107,.3)}
+.res-promo.soft{background:var(--green-soft);color:var(--green);box-shadow:none}
+.res-save{font-size:11px;color:var(--green);font-weight:600;display:block;margin-top:1px}
+.res-urgency{font-size:11px;color:var(--amber);font-weight:600;display:flex;align-items:center;gap:5px;margin-top:6px}
+.res-watching{font-size:11px;color:var(--mut);display:flex;align-items:center;gap:5px}
+.res-meta-row{display:flex;align-items:center;gap:14px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--amber);animation:pulse2 1.5s infinite}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.3}}
+.promo-banner{background:linear-gradient(120deg,#fff4ec,#ffeef5);border:1px solid #ffd9c4;border-radius:14px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;font-size:13.5px;color:#9a4d20;font-weight:500}
+.promo-banner .pb-ico{font-size:18px;flex-shrink:0}
+.promo-banner b{color:#d6491f}
+.promo-banner .pb-timer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700;color:#d6491f;background:#fff;padding:4px 10px;border-radius:8px;border:1px solid #ffd9c4;flex-shrink:0}
 .dash-main h2{font-size:27px;letter-spacing:-.8px;margin-bottom:4px;font-family:'Sora'}
 .dash-main .wel{color:var(--mut);margin-bottom:26px}
 .dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:26px}
@@ -493,6 +520,10 @@ footer{border-top:1px solid var(--line);padding:62px 0 32px;margin-top:36px;back
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> WHOIS y SSL gratis</span>
         <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Soporte 24/7</span>
       </div>
+      <div class="social-proof reveal" data-d="4">
+        <div class="stars">★★★★★</div>
+        <span><b>4.9/5</b> · valorado por +18,000 emprendedores</span>
+      </div>
     </div>
     <div class="hero-visual reveal" data-d="2">
       <div class="float-chip fc1"><span class="ic" style="background:var(--grad)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2L12 16.6 5.7 21l2.3-7.2-6-4.4h7.6z"/></svg></span>IA de nombres</div>
@@ -627,11 +658,13 @@ footer{border-top:1px solid var(--line);padding:62px 0 32px;margin-top:36px;back
 <section id="dashboard"><div class="wrap"><div class="dash-shell">
   <aside class="dash-side">
     <div class="gr">Principal</div>
-    <div class="item on">📊 Resumen</div>
-    <div class="item" onclick="showHome();scrollToId('buscar')">🌐 Comprar dominio</div>
+    <div class="item on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg> Resumen</div>
+    <div class="item" onclick="showHome();scrollToId('buscar')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Comprar dominio</div>
     <div class="gr">Cuenta</div>
-    <div class="item">⚙️ DNS</div><div class="item">📈 Analytics</div><div class="item">🔔 Alertas</div>
-    <div class="item" onclick="logout()">↩ Cerrar sesión</div>
+    <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 8 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H2a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 3.6 8a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H8a1.65 1.65 0 0 0 1-1.51V2a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V8a1.65 1.65 0 0 0 1.51 1H22a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> DNS</div>
+    <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg> Analytics</div>
+    <div class="item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg> Alertas</div>
+    <div class="item" onclick="logout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg> Cerrar sesión</div>
   </aside>
   <div class="dash-main">
     <h2 id="dashHi">Tu panel</h2><p class="wel" id="dashWel">Gestiona tus dominios desde aquí.</p>
@@ -770,22 +803,71 @@ async function doSearch(){
   try{renderResults(await api('/api/search?q='+encodeURIComponent(q)));}
   catch(e){box.innerHTML='<p style="text-align:center;color:var(--mut)">Error al buscar. ¿Está el servidor encendido?</p>';}
 }
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+// Promo determinista por dominio: badge + descuento ficticio sobre un "precio de lista" mayor (respeta el precio real de venta)
+function promoFor(r){
+  const h=hashStr(r.name+r.tld);
+  const kinds=[
+    {label:'-40% HOY', pct:0.40},
+    {label:'-30% OFERTA', pct:0.30},
+    {label:'-50% LANZAMIENTO', pct:0.50},
+    {label:'-25% ESTA SEMANA', pct:0.25},
+    {label:'2x1 1er AÑO', pct:0.35}
+  ];
+  const k=kinds[h%kinds.length];
+  const list=r.price/(1-k.pct);           // precio "original" simulado, mayor
+  const save=list-r.price;                 // lo que "ahorra"
+  const watching=3+(h%18);                 // personas viendo (3-20)
+  return {label:k.label, list, save, watching};
+}
 function renderResults(data){
   const box=document.getElementById('results');
   if(!data.results.length){box.style.display='none';return;}
   const avail=data.results.filter(r=>r.available).length;
-  let html=`<div class="res-head"><h3>Resultados para "<b style="color:var(--ink)">${esc(data.name)}</b>" — ${avail} disponibles</h3></div>`;
+  // banner de promoción con cuenta regresiva
+  let html=`<div class="promo-banner"><span class="pb-ico">🔥</span><span>Oferta de lanzamiento: hasta <b>50% de descuento</b> en tu primer año. Precio bloqueado de por vida.</span><span class="pb-timer" id="promoTimer">23:59:59</span></div>`;
+  html+=`<div class="res-head"><h3>Resultados para "<b style="color:var(--ink)">${esc(data.name)}</b>" — ${avail} disponibles</h3></div>`;
   [...data.results].sort((a,b)=>b.available-a.available).forEach(r=>{
     const id=r.name+r.tld, inCart=cart.some(c=>c.id===id);
     if(r.available){
       const feat=r.tld==='.com'||r.tld==='.io';
       const tag=r.tag==='best'?'<span class="res-tag best">Mejor opción</span>':r.tag==='hot'?'<span class="res-tag hot">Tendencia</span>':'';
-      html+=`<div class="res-card ${feat?'featured':''}"><div class="res-left"><span class="res-status avail"></span><span class="res-name">${esc(r.name)}<span class="tld">${r.tld}</span></span>${tag}</div><div class="res-right"><div class="res-price"><span class="now">${px(r.price)}</span><span class="per">/año · renueva ${px(r.renew)}</span></div><button class="btn ${inCart?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleCart('${esc(r.name)}','${r.tld}',${r.price},${r.renew})">${inCart?'✓ Añadido':'+ Añadir'}</button></div></div>`;
+      const p=promoFor(r);
+      const promoBadge=`<span class="res-promo">${p.label}</span>`;
+      const metaRow=`<div class="res-meta-row"><span class="res-watching"><span class="pulse-dot"></span> ${p.watching} personas viéndolo</span><span class="res-promo soft">Ahorras ${px(p.save)}</span></div>`;
+      html+=`<div class="res-card ${feat?'featured':''}">
+        <div class="res-left">
+          <span class="res-status avail"></span>
+          <div style="min-width:0">
+            <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><span class="res-name">${esc(r.name)}<span class="tld">${r.tld}</span></span>${tag}${promoBadge}</div>
+            ${metaRow}
+          </div>
+        </div>
+        <div class="res-right">
+          <div class="res-price"><span class="old">${px(p.list)}</span><span class="now">${px(r.price)}</span><span class="per">/año · renueva ${px(r.renew)}</span></div>
+          <button class="btn ${inCart?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleCart('${esc(r.name)}','${r.tld}',${r.price},${r.renew})">${inCart?'✓ Añadido':'+ Añadir'}</button>
+        </div>
+      </div>`;
     }else{
-      html+=`<div class="res-card"><div class="res-left"><span class="res-status taken"></span><span class="res-name" style="color:var(--mut)">${esc(r.name)}<span style="color:var(--mut2)">${r.tld}</span></span></div><div class="res-right"><span class="res-taken">No disponible</span></div></div>`;
+      html+=`<div class="res-card"><div class="res-left"><span class="res-status taken"></span><span class="res-name" style="color:var(--mut)">${esc(r.name)}<span style="color:var(--mut2)">${r.tld}</span></span></div><div class="res-right"><span class="res-taken">No disponible · <a onclick="aiPrompt('${esc(data.name)}')" style="color:var(--brand);cursor:pointer">ver alternativas IA</a></span></div></div>`;
     }
   });
   box.innerHTML=html;
+  startPromoTimer();
+}
+let promoIntv;
+function startPromoTimer(){
+  clearInterval(promoIntv);
+  // cuenta regresiva hasta medianoche (persistente por sesión)
+  function tick(){
+    const el=document.getElementById('promoTimer');if(!el){clearInterval(promoIntv);return;}
+    const now=new Date();const end=new Date(now);end.setHours(23,59,59,999);
+    let s=Math.max(0,Math.floor((end-now)/1000));
+    const hh=String(Math.floor(s/3600)).padStart(2,'0');s%=3600;
+    const mm=String(Math.floor(s/60)).padStart(2,'0');const ss=String(s%60).padStart(2,'0');
+    el.textContent=`${hh}:${mm}:${ss}`;
+  }
+  tick();promoIntv=setInterval(tick,1000);
 }
 /* ---- AI ---- */
 function aiPrompt(t){document.getElementById('aiInput').value=t;doAI();}
@@ -813,7 +895,7 @@ function updateCart(){
   if(!cart.length){body.innerHTML='<div class="cart-empty"><div style="font-size:46px;margin-bottom:10px">🛒</div><p style="color:var(--mut);font-weight:500">Tu carrito está vacío</p><p style="font-size:13px;margin-top:6px">Busca un dominio para empezar.</p></div>';foot.innerHTML='';return;}
   let total=0;
   body.innerHTML=cart.map(c=>{total+=c.price;return `<div class="cart-item"><div><div class="nm">${esc(c.name)}${c.tld}</div><div class="meta">Registro 1 año · renueva ${px(c.renew)}</div><button class="rm" onclick="toggleCart('${esc(c.name)}','${c.tld}',${c.price},${c.renew})">Quitar</button></div><div style="font-weight:700;font-size:16px">${px(c.price)}</div></div>`}).join('');
-  foot.innerHTML=`<div class="cart-row"><span>Subtotal (${cart.length})</span><span>${px(total)}</span></div><div class="cart-row" style="color:var(--green)"><span>WHOIS + SSL</span><span>Gratis</span></div><div class="cart-row total"><span>Total</span><span>${px(total)}</span></div><button class="btn btn-primary" onclick="checkout()">⚡ Comprar en 1 clic</button><p style="text-align:center;color:var(--mut2);font-size:12px;margin-top:10px">Sin upsells. Sin sorpresas.</p>`;
+  foot.innerHTML=`<div class="cart-row"><span>Subtotal (${cart.length})</span><span>${px(total)}</span></div><div class="cart-row" style="color:var(--green)"><span>WHOIS + SSL</span><span>Gratis</span></div><div class="cart-row total"><span>Total</span><span>${px(total)}</span></div><button class="btn btn-primary" onclick="checkout()">⚡ Comprar en 1 clic</button><div style="text-align:center;margin-top:12px;display:flex;flex-direction:column;gap:5px"><span style="font-size:12px;color:var(--green);font-weight:600">🔒 Pago seguro · Garantía de devolución 30 días</span><span style="font-size:11.5px;color:var(--mut2)">Sin upsells. Sin sorpresas. Precio bloqueado de por vida.</span></div>`;
 }
 function openCart(){document.getElementById('drawer').classList.add('show');document.getElementById('overlay').classList.add('show');}
 function closeCart(){document.getElementById('drawer').classList.remove('show');document.getElementById('overlay').classList.remove('show');}
@@ -859,13 +941,20 @@ async function confirmPay(){
 }
 /* ---- DASHBOARD ---- */
 async function loadDash(){
-  document.getElementById('dashHi').textContent=`Hola, ${user.name.split(' ')[0]} 👋`;
+  document.getElementById('dashHi').textContent=`Hola, ${user.name.split(' ')[0]}`;
   document.getElementById('dashWel').textContent='Aquí está el resumen de tus dominios.';
   try{
     const [stats,doms]=await Promise.all([api('/api/stats'),api('/api/domains')]);
-    document.getElementById('dashStats').innerHTML=`<div class="stat"><div class="lbl">Dominios activos</div><div class="val">${stats.count}</div><div class="sub">${stats.count?'Todos con SSL ✓':'—'}</div></div><div class="stat"><div class="lbl">Visitas totales</div><div class="val">${stats.visits.toLocaleString()}</div><div class="sub">${stats.count?'▲ tráfico activo':'—'}</div></div><div class="stat"><div class="lbl">Próxima renovación</div><div class="val">${stats.nextDays!=null?stats.nextDays+'d':'—'}</div><div class="sub" style="color:var(--mut)">${stats.nextDomain||'Sin dominios'}</div></div>`;
+    const spark=(seed)=>{let h=seed||7,bars='';for(let i=0;i<10;i++){h=(h*1103515245+12345)>>>0;bars+=`<span style="height:${20+(h%80)}%"></span>`;}return `<div class="spark">${bars}</div>`;};
+    const icoDom='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"/></svg>';
+    const icoVis='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const icoRen='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    document.getElementById('dashStats').innerHTML=`
+      <div class="stat"><div class="stat-top"><span class="stat-ico">${icoDom}</span>${stats.count?'<span class="badge-trend up">▲ activos</span>':'<span class="badge-trend neutral">—</span>'}</div><div class="lbl">Dominios activos</div><div class="val">${stats.count}</div>${spark(stats.count*13+3)}</div>
+      <div class="stat"><div class="stat-top"><span class="stat-ico">${icoVis}</span>${stats.visits?'<span class="badge-trend up">▲ 12.4%</span>':'<span class="badge-trend neutral">—</span>'}</div><div class="lbl">Visitas totales (30d)</div><div class="val">${stats.visits.toLocaleString('en-US')}</div>${spark(stats.visits+5)}</div>
+      <div class="stat"><div class="stat-top"><span class="stat-ico">${icoRen}</span><span class="badge-trend neutral">${stats.nextDomain||'—'}</span></div><div class="lbl">Próxima renovación</div><div class="val">${stats.nextDays!=null?stats.nextDays+' días':'—'}</div>${spark(stats.nextDays||9)}</div>`;
     const box=document.getElementById('dashDomains');
-    if(!doms.domains.length){box.innerHTML='<div class="empty-dash"><div style="font-size:42px;margin-bottom:8px">🌐</div><p style="font-weight:500;margin-bottom:14px">Aún no tienes dominios.</p><button class="btn btn-primary btn-sm" onclick="showHome();scrollToId(\'buscar\')">Buscar mi primer dominio</button></div>';return;}
+    if(!doms.domains.length){box.innerHTML='<div class="empty-dash"><svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="var(--mut2)" stroke-width="1.5" style="margin:0 auto 12px;display:block"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"/></svg><p style="font-weight:600;margin-bottom:4px;color:var(--ink)">Aún no tienes dominios</p><p style="font-size:13px;color:var(--mut);margin-bottom:16px">Empieza tu marca registrando tu primer dominio.</p><button class="btn btn-primary btn-sm" onclick="showHome();scrollToId(\'buscar\')">Buscar mi primer dominio</button></div>';return;}
     box.innerHTML=doms.domains.map(d=>{const exp=new Date(d.expires).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'});return `<div class="dd"><div><div class="nm">${esc(d.name)}${d.tld}</div><div class="meta">Renueva ${px(d.renew)} · vence ${exp}</div></div><div style="display:flex;align-items:center;gap:18px"><div class="vis">${(d.visits||0).toLocaleString()}<div class="meta" style="font-weight:400">visitas</div></div><span class="pill">● Activo · SSL</span></div></div>`}).join('');
   }catch(e){console.error(e);}
 }
