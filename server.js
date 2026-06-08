@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 3000;
 const SECRET = process.env.DOMINZO_SECRET || 'dominzo-dev-secret-change-me';
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY || '';        // sk_test_... o sk_live_...
 const BASE_URL = process.env.BASE_URL || '';                    // ej. https://dominzo.onrender.com (opcional)
+const PORKBUN_KEY = process.env.PORKBUN_API_KEY || '';         // pk1_...
+const PORKBUN_SECRET = process.env.PORKBUN_SECRET_KEY || '';   // sk1_...
+const REGISTRAR_ON = !!(PORKBUN_KEY && PORKBUN_SECRET);
 const ROOT = __dirname;
 const DB_PATH = process.env.DOMINZO_DB || path.join(ROOT, 'dominzo.db');
 
@@ -174,6 +177,36 @@ function flattenStripe(obj, prefix, out){
   }
   return out;
 }
+/* ---------------- Porkbun (registrador real, sin dependencias) ---------------- */
+// POST JSON a la API de Porkbun. La autenticación va en el body (apikey + secretapikey).
+function porkbunPost(apiPath, payload){
+  return new Promise((resolve,reject)=>{
+    const body=JSON.stringify(Object.assign({apikey:PORKBUN_KEY, secretapikey:PORKBUN_SECRET}, payload||{}));
+    const opts={method:'POST',host:'api.porkbun.com',path:'/api/json/v3/'+apiPath,
+      headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body)},timeout:12000};
+    const req=https.request(opts,r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>{try{resolve(JSON.parse(d));}catch(e){reject(e);}});});
+    req.on('timeout',()=>{req.destroy();reject(new Error('Porkbun timeout'));});
+    req.on('error',reject);
+    req.write(body);req.end();
+  });
+}
+// Disponibilidad real de un dominio (devuelve {available, price} o null si falla)
+async function porkbunCheck(domain){
+  try{
+    const r=await porkbunPost('domain/checkDomain/'+encodeURIComponent(domain));
+    if(r && r.status==='SUCCESS' && r.response){
+      return { available: r.response.avail==='yes', price: parseFloat(r.response.price)||null };
+    }
+  }catch(e){ /* cae a motor simulado */ }
+  return null;
+}
+// Registro real de un dominio tras el pago (1 año). Devuelve true si OK.
+async function porkbunRegister(domain, years){
+  try{
+    const r=await porkbunPost('domain/create/'+encodeURIComponent(domain), { years: String(years||1) });
+    return !!(r && r.status==='SUCCESS');
+  }catch(e){ return false; }
+}
 async function convertCurrency(from,to,amount){
   from=(from||'USD').toUpperCase(); to=(to||'EUR').toUpperCase(); amount=Number(amount)||0;
   try{
@@ -216,6 +249,14 @@ const server=http.createServer(async (req,res)=>{
   if(req.method==='OPTIONS') return send(res,204,'');
   try{
     if(p==='/api/search') return send(res,200,searchDomains(u.searchParams.get('q')||''));
+    // Verificación real de disponibilidad de UN dominio exacto (usa Porkbun si está configurado)
+    if(p==='/api/check'){
+      const dom=(u.searchParams.get('domain')||'').toLowerCase().trim();
+      if(!REGISTRAR_ON) return send(res,200,{ real:false });
+      const r=await porkbunCheck(dom);
+      if(r) return send(res,200,{ real:true, domain:dom, available:r.available, price:r.price });
+      return send(res,200,{ real:false });
+    }
     if(p==='/api/ai') return send(res,200,{names:aiNames(u.searchParams.get('prompt')||'')});
     if(p==='/api/convert') return send(res,200,await convertCurrency(u.searchParams.get('from'),u.searchParams.get('to'),u.searchParams.get('amount')));
     if(p==='/api/translate') return send(res,200,await translateText(u.searchParams.get('text'),u.searchParams.get('from'),u.searchParams.get('to')));
@@ -284,8 +325,16 @@ const server=http.createServer(async (req,res)=>{
         let items=[]; try{ items=JSON.parse(sess.metadata.items||'[]'); }catch{}
         const now=Date.now(), yr=365*864e5;
         const ins=db.prepare('INSERT INTO domains(user_id,name,tld,price,renew,status,registered,expires,visits) VALUES(?,?,?,?,?,?,?,?,?)');
-        for(const it of items){ ins.run(us.id,it.name,it.tld,Number(it.price)||0,Number(it.renew)||Number(it.price)||0,'active',now,now+yr,Math.floor(Math.random()*5000)); }
-        return send(res,200,{ok:true,paid:true,domains:db.prepare('SELECT * FROM domains WHERE user_id=? ORDER BY registered DESC').all(us.id)});
+        for(const it of items){
+          // Si el registrador real está configurado, registra el dominio de verdad
+          let status='active';
+          if(REGISTRAR_ON){
+            const ok=await porkbunRegister(it.name+it.tld, 1);
+            status = ok ? 'active' : 'pending_registration'; // si falla, queda pendiente (pagado, por registrar)
+          }
+          ins.run(us.id,it.name,it.tld,Number(it.price)||0,Number(it.renew)||Number(it.price)||0,status,now,now+yr,Math.floor(Math.random()*5000));
+        }
+        return send(res,200,{ok:true,paid:true,registrar:REGISTRAR_ON,domains:db.prepare('SELECT * FROM domains WHERE user_id=? ORDER BY registered DESC').all(us.id)});
       }catch(e){ return send(res,502,{error:'Stripe: '+e.message}); }
     }
     if(p==='/api/checkout' && req.method==='POST'){
