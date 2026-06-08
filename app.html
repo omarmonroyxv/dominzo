@@ -692,7 +692,7 @@ function showDash(){if(!user)return openAuth('login');document.getElementById('h
 function px(usd){
   const v=usd*curRate;
   const dec=(curCode==='JPY'||curCode==='CLP'||curCode==='COP')?0:2;
-  const f=new Intl.NumberFormat('es',{minimumFractionDigits:dec,maximumFractionDigits:dec}).format(v);
+  const f=new Intl.NumberFormat('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec}).format(v);
   return curSym+f+(curCode!=='USD'?' '+curCode:'');
 }
 function refreshPriceLabels(){
