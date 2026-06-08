@@ -212,10 +212,21 @@ let TLD_CACHE=null, TLD_CACHE_TS=0;
 const TLD_CACHE_MS=6*60*60*1000;             // refrescar cada 6 h
 const MARKUP=Number(process.env.DOMINZO_MARKUP||'1.0'); // margen sobre costo (1.0 = a costo; 1.15 = +15%)
 const TLD_FALLBACK=TLDS.map(t=>({tld:t.tld,price:t.price,renew:t.renew,tag:t.tag}));
+// POST sin auth (el endpoint de pricing es público pero requiere POST)
+function porkbunPublicPost(apiPath){
+  return new Promise((resolve,reject)=>{
+    const body='{}';
+    const opts={method:'POST',host:'api.porkbun.com',path:'/api/json/v3/'+apiPath,
+      headers:{'Content-Type':'application/json','Content-Length':Buffer.byteLength(body)},timeout:11000};
+    const req=https.request(opts,r=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>{try{resolve(JSON.parse(d));}catch(e){reject(e);}});});
+    req.on('timeout',()=>{req.destroy();reject(new Error('timeout'));});
+    req.on('error',reject);req.write(body);req.end();
+  });
+}
 async function getTLDs(){
   if(TLD_CACHE && (Date.now()-TLD_CACHE_TS)<TLD_CACHE_MS) return TLD_CACHE;
   try{
-    const data=await fetchJSON('https://api.porkbun.com/api/json/v3/pricing/get', 10000);
+    const data=await porkbunPublicPost('pricing/get');
     if(data && data.status==='SUCCESS' && data.pricing){
       const popular=['.com','.io','.ai','.co','.net','.org','.shop','.store','.dev','.app','.online','.xyz','.tech','.me','.info','.biz','.site','.club','.live','.pro','.us','.mx','.cloud','.digital','.studio','.agency','.design','.fun','.world','.life'];
       const all=Object.keys(data.pricing).map(ext=>{
