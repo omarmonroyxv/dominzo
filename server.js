@@ -12,6 +12,8 @@ const { DatabaseSync } = require('node:sqlite');
 
 const PORT = process.env.PORT || 3000;
 const SECRET = process.env.DOMINZO_SECRET || 'dominzo-dev-secret-change-me';
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY || '';        // sk_test_... o sk_live_...
+const BASE_URL = process.env.BASE_URL || '';                    // ej. https://dominzo.onrender.com (opcional)
 const ROOT = __dirname;
 const DB_PATH = process.env.DOMINZO_DB || path.join(ROOT, 'dominzo.db');
 
@@ -140,6 +142,38 @@ function fetchJSON(url,timeoutMs=4500){
     req.on('error',reject);
   });
 }
+/* ---------------- Stripe (API directa, sin dependencias) ---------------- */
+// Llama a la API de Stripe con form-encoding y autenticacion Bearer.
+function stripeCall(method, apiPath, params){
+  return new Promise((resolve,reject)=>{
+    const body = params ? new URLSearchParams(flattenStripe(params)).toString() : '';
+    const opts={
+      method, host:'api.stripe.com', path:'/v1/'+apiPath,
+      headers:{
+        'Authorization':'Bearer '+STRIPE_KEY,
+        'Content-Type':'application/x-www-form-urlencoded',
+        'Content-Length':Buffer.byteLength(body)
+      }, timeout:9000
+    };
+    const req=https.request(opts,r=>{
+      let d='';r.on('data',c=>d+=c);
+      r.on('end',()=>{try{const j=JSON.parse(d); if(j.error) reject(new Error(j.error.message||'Stripe error')); else resolve(j);}catch(e){reject(e);}});
+    });
+    req.on('timeout',()=>{req.destroy();reject(new Error('Stripe timeout'));});
+    req.on('error',reject);
+    if(body) req.write(body);
+    req.end();
+  });
+}
+// Stripe usa claves anidadas tipo line_items[0][price_data][...]: aplanamos el objeto.
+function flattenStripe(obj, prefix, out){
+  out=out||{}; prefix=prefix||'';
+  for(const k in obj){
+    const v=obj[k]; const key=prefix?`${prefix}[${k}]`:k;
+    if(v&&typeof v==='object') flattenStripe(v,key,out); else out[key]=v;
+  }
+  return out;
+}
 async function convertCurrency(from,to,amount){
   from=(from||'USD').toUpperCase(); to=(to||'EUR').toUpperCase(); amount=Number(amount)||0;
   try{
@@ -203,6 +237,57 @@ const server=http.createServer(async (req,res)=>{
     }
     if(p==='/api/me'){ const us=authUser(req); if(!us) return send(res,401,{error:'No autenticado'}); return send(res,200,{user:us}); }
     if(p==='/api/domains'){ const us=authUser(req); if(!us) return send(res,401,{error:'No autenticado'}); return send(res,200,{domains:db.prepare('SELECT * FROM domains WHERE user_id=? ORDER BY registered DESC').all(us.id)}); }
+    // ¿Stripe está configurado? (para que el frontend sepa qué flujo usar)
+    if(p==='/api/payment-config'){
+      return send(res,200,{ stripe: !!STRIPE_KEY });
+    }
+    // Crear sesión de Stripe Checkout
+    if(p==='/api/create-checkout-session' && req.method==='POST'){
+      const us=authUser(req); if(!us) return send(res,401,{error:'Debes iniciar sesion para comprar'});
+      if(!STRIPE_KEY) return send(res,400,{error:'Stripe no configurado'});
+      const b=await readBody(req); const items=Array.isArray(b.items)?b.items:[];
+      if(!items.length) return send(res,400,{error:'Carrito vacio'});
+      const origin = b.origin || BASE_URL || ('https://'+(req.headers.host||'localhost'));
+      const params={
+        mode:'payment',
+        success_url: origin+'/?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: origin+'/?canceled=1',
+        customer_email: us.email,
+        client_reference_id: String(us.id),
+        metadata:{ items: JSON.stringify(items).slice(0,480) },
+        line_items: items.map(it=>({
+          quantity:1,
+          price_data:{
+            currency:'usd',
+            unit_amount: Math.round((Number(it.price)||0)*100),
+            product_data:{ name: (it.name+it.tld)+' — registro 1 año' }
+          }
+        }))
+      };
+      try{
+        const sess=await stripeCall('POST','checkout/sessions',params);
+        // guardamos el carrito asociado a la sesión para registrarlo tras el pago
+        db.prepare('INSERT INTO orders(user_id,total,items,created) VALUES(?,?,?,?)')
+          .run(us.id, items.reduce((s,i)=>s+(Number(i.price)||0),0), JSON.stringify({sid:sess.id,items,pending:true}), Date.now());
+        return send(res,200,{ url: sess.url, id: sess.id });
+      }catch(e){ return send(res,502,{error:'Stripe: '+e.message}); }
+    }
+    // Confirmar sesión tras volver de Stripe: verifica pago y registra dominios
+    if(p==='/api/confirm-session' && req.method==='POST'){
+      const us=authUser(req); if(!us) return send(res,401,{error:'No autenticado'});
+      if(!STRIPE_KEY) return send(res,400,{error:'Stripe no configurado'});
+      const b=await readBody(req); const sid=b.session_id;
+      if(!sid) return send(res,400,{error:'Falta session_id'});
+      try{
+        const sess=await stripeCall('GET','checkout/sessions/'+encodeURIComponent(sid));
+        if(sess.payment_status!=='paid') return send(res,402,{error:'Pago no completado',status:sess.payment_status});
+        let items=[]; try{ items=JSON.parse(sess.metadata.items||'[]'); }catch{}
+        const now=Date.now(), yr=365*864e5;
+        const ins=db.prepare('INSERT INTO domains(user_id,name,tld,price,renew,status,registered,expires,visits) VALUES(?,?,?,?,?,?,?,?,?)');
+        for(const it of items){ ins.run(us.id,it.name,it.tld,Number(it.price)||0,Number(it.renew)||Number(it.price)||0,'active',now,now+yr,Math.floor(Math.random()*5000)); }
+        return send(res,200,{ok:true,paid:true,domains:db.prepare('SELECT * FROM domains WHERE user_id=? ORDER BY registered DESC').all(us.id)});
+      }catch(e){ return send(res,502,{error:'Stripe: '+e.message}); }
+    }
     if(p==='/api/checkout' && req.method==='POST'){
       const us=authUser(req); if(!us) return send(res,401,{error:'Debes iniciar sesion para comprar'});
       const b=await readBody(req); const items=Array.isArray(b.items)?b.items:[];
