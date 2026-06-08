@@ -207,6 +207,49 @@ async function porkbunRegister(domain, years){
     return !!(r && r.status==='SUCCESS');
   }catch(e){ return false; }
 }
+/* ---------------- Precios reales de TODAS las extensiones (Porkbun pricing, público) ---------------- */
+let TLD_CACHE=null, TLD_CACHE_TS=0;
+const TLD_CACHE_MS=6*60*60*1000;             // refrescar cada 6 h
+const MARKUP=Number(process.env.DOMINZO_MARKUP||'1.0'); // margen sobre costo (1.0 = a costo; 1.15 = +15%)
+const TLD_FALLBACK=TLDS.map(t=>({tld:t.tld,price:t.price,renew:t.renew,tag:t.tag}));
+async function getTLDs(){
+  if(TLD_CACHE && (Date.now()-TLD_CACHE_TS)<TLD_CACHE_MS) return TLD_CACHE;
+  try{
+    const data=await fetchJSON('https://api.porkbun.com/api/json/v3/pricing/get', 10000);
+    if(data && data.status==='SUCCESS' && data.pricing){
+      const popular=['.com','.io','.ai','.co','.net','.org','.shop','.store','.dev','.app','.online','.xyz','.tech','.me','.info','.biz','.site','.club','.live','.pro','.us','.mx','.cloud','.digital','.studio','.agency','.design','.fun','.world','.life'];
+      const all=Object.keys(data.pricing).map(ext=>{
+        const p=data.pricing[ext];
+        const reg=parseFloat(p.registration)||0, ren=parseFloat(p.renewal)||reg;
+        return { tld:'.'+ext, price:+(reg*MARKUP).toFixed(2), renew:+(ren*MARKUP).toFixed(2), cost:reg };
+      }).filter(t=>t.price>0);
+      // ordenar: populares primero (en su orden), luego por precio
+      all.sort((a,b)=>{
+        const ia=popular.indexOf(a.tld), ib=popular.indexOf(b.tld);
+        if(ia!==-1||ib!==-1){ if(ia===-1)return 1; if(ib===-1)return -1; return ia-ib; }
+        return a.price-b.price;
+      });
+      // tags para destacar
+      all.forEach(t=>{ t.tag = t.tld==='.com'?'best' : t.tld==='.io'?'hot' : null; });
+      TLD_CACHE=all; TLD_CACHE_TS=Date.now();
+      return all;
+    }
+  }catch(e){ /* fallback */ }
+  return TLD_FALLBACK;
+}
+// Búsqueda usando la lista real de TLDs
+async function searchDomainsReal(query){
+  const name=cleanName(query);
+  if(!name) return {name:'',results:[]};
+  const tlds=await getTLDs();
+  const reqTLD=parseTLD(query);
+  let list=[...tlds];
+  if(reqTLD) list.sort((a,b)=>(a.tld===reqTLD?-1:0)-(b.tld===reqTLD?-1:0));
+  // limitar a 40 para no saturar la UI
+  list=list.slice(0,40);
+  const results=list.map(t=>({name,tld:t.tld,price:t.price,renew:t.renew,tag:t.tag,available:isAvailable(name,t.tld)}));
+  return {name,results,source:TLD_CACHE?'porkbun':'fallback'};
+}
 async function convertCurrency(from,to,amount){
   from=(from||'USD').toUpperCase(); to=(to||'EUR').toUpperCase(); amount=Number(amount)||0;
   try{
@@ -248,7 +291,8 @@ const server=http.createServer(async (req,res)=>{
   const p=u.pathname;
   if(req.method==='OPTIONS') return send(res,204,'');
   try{
-    if(p==='/api/search') return send(res,200,searchDomains(u.searchParams.get('q')||''));
+    if(p==='/api/search') return send(res,200, await searchDomainsReal(u.searchParams.get('q')||''));
+    if(p==='/api/tlds') return send(res,200,{ tlds: await getTLDs() });
     // Verificación real de disponibilidad de UN dominio exacto (usa Porkbun si está configurado)
     if(p==='/api/check'){
       const dom=(u.searchParams.get('domain')||'').toLowerCase().trim();
