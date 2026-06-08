@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dominzo — Tu dominio en segundos. Sin trucos.</title>
+<meta name="description" content="Registra dominios baratos con precio honesto de por vida. IA de nombres, conversor de divisas y traductor incluidos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbfbfd; --bg-soft:#f4f5f9; --bg-soft2:#eceef5; --surface:#ffffff;
+  --ink:#0a0c1b; --ink2:#34384f; --mut:#646a85; --mut2:#9499b4; --line:#ebedf4; --line2:#e0e3ed;
+  --brand:#5546ff; --brand-d:#4636e8; --brand2:#7c6cff; --brand-soft:#eeebff; --brand-glow:rgba(85,70,255,.28);
+  --cyan:#07b6cc; --green:#12a150; --green-soft:#e6f7ee; --amber:#d98316; --red:#e23b54; --pink:#ec4d8f;
+  --grad:linear-gradient(115deg,#5546ff 0%,#7c6cff 42%,#07b6cc 100%);
+  --grad-warm:linear-gradient(120deg,#ff6b6b,#ffa94d);
+  --sh-xs:0 1px 2px rgba(10,12,40,.05);
+  --sh-sm:0 2px 4px rgba(10,12,40,.05),0 4px 12px rgba(10,12,40,.05);
+  --sh:0 6px 16px rgba(10,12,40,.07),0 12px 32px rgba(10,12,40,.06);
+  --sh-lg:0 18px 48px rgba(40,30,120,.12),0 8px 22px rgba(10,12,40,.08);
+  --sh-glow:0 12px 40px var(--brand-glow);
+  --r:20px; --rs:14px; --rxs:10px; --max:1200px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--ink);
+  background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-feature-settings:"cv11","ss01"}
+h1,h2,h3,h4,.font-display{font-family:'Sora','Inter',sans-serif}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+::selection{background:var(--brand);color:#fff}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 26px}
+.gt{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.reveal[data-d="1"]{transition-delay:.08s}.reveal[data-d="2"]{transition-delay:.16s}
+.reveal[data-d="3"]{transition-delay:.24s}.reveal[data-d="4"]{transition-delay:.32s}
+
+/* buttons */
+.btn{cursor:pointer;border:none;font-family:inherit;font-weight:600;border-radius:13px;padding:13px 22px;
+  font-size:14.5px;transition:.2s var(--ease);display:inline-flex;align-items:center;gap:8px;white-space:nowrap;position:relative}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 6px 18px var(--brand-glow)}
+.btn-primary:hover{background:var(--brand-d);transform:translateY(-2px);box-shadow:0 12px 28px var(--brand-glow)}
+.btn-primary:active{transform:translateY(0)}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line2)}
+.btn-ghost:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.btn-soft{background:var(--bg-soft);color:var(--ink2);border:1px solid var(--line)}
+.btn-soft:hover{background:var(--bg-soft2)}
+.btn-sm{padding:9px 15px;font-size:13px;border-radius:10px}
+.btn-lg{padding:16px 30px;font-size:16px;border-radius:15px}
+
+/* NAV */
+header.nav{position:sticky;top:0;z-index:100;background:rgba(251,251,253,.78);backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid transparent;transition:.3s}
+header.nav.scrolled{border-bottom-color:var(--line);background:rgba(251,251,253,.92)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:72px;gap:18px}
+.logo{display:flex;align-items:center;gap:11px;font-family:'Sora';font-weight:700;font-size:20px;letter-spacing:-.5px;flex-shrink:0}
+.logo svg{transition:transform .4s var(--ease)}
+.logo:hover svg{transform:rotate(-8deg) scale(1.06)}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{color:var(--ink2);font-size:14px;font-weight:500;transition:.15s;padding:8px 13px;border-radius:9px}
+.nav-links a:hover{color:var(--brand);background:var(--brand-soft)}
+.nav-right{display:flex;gap:9px;align-items:center}
+
+/* mini selectors en navbar (divisa + idioma) */
+.mini-sel{position:relative}
+.mini-sel>button{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--line2);
+  border-radius:10px;padding:8px 11px;font-family:inherit;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer;transition:.15s}
+.mini-sel>button:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.mini-sel>button .chev{transition:.2s;font-size:9px;opacity:.6}
+.mini-sel.open>button .chev{transform:rotate(180deg)}
+.mini-pop{position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--line2);
+  border-radius:14px;box-shadow:var(--sh-lg);padding:7px;min-width:172px;opacity:0;transform:translateY(-6px) scale(.98);
+  pointer-events:none;transition:.18s var(--ease);z-index:120;max-height:300px;overflow-y:auto}
+.mini-sel.open .mini-pop{opacity:1;transform:none;pointer-events:auto}
+.mini-pop .opt{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;font-size:13.5px;
+  color:var(--ink2);cursor:pointer;transition:.12s;font-weight:500}
+.mini-pop .opt:hover{background:var(--bg-soft)}
+.mini-pop .opt.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.mini-pop .opt .flag{font-size:16px}
+.nav-icon{width:42px;height:42px;border-radius:11px;background:transparent;border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s;position:relative;color:var(--ink2)}
+.nav-icon:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.cart-count{position:absolute;top:-6px;right:-6px;background:var(--brand);color:#fff;font-size:10.5px;font-weight:700;
+  min-width:18px;height:18px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;box-shadow:0 2px 6px var(--brand-glow)}
+.cart-count.hide{display:none}
+#userChip{display:none;align-items:center;gap:9px;cursor:pointer;background:var(--surface);border:1px solid var(--line2);
+  border-radius:11px;padding:5px 12px 5px 6px;font-size:13.5px;font-weight:600;transition:.15s}
+#userChip:hover{border-color:var(--brand)}
+.avatar{width:30px;height:30px;border-radius:9px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;font-family:'Sora'}
+.burger{display:none;width:42px;height:42px;border-radius:11px;border:1px solid var(--line2);background:transparent;cursor:pointer;align-items:center;justify-content:center}
+@media(max-width:1080px){.nav-links{display:none}.mini-sel.cur{display:none}}
+@media(max-width:560px){.nav-hide-sm{display:none}}
+/* HERO */
+.hero{position:relative;padding:74px 0 60px;overflow:hidden}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center}
+.hero-bg{position:absolute;inset:0;z-index:-1;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.55;animation:drift 18s ease-in-out infinite}
+.blob.b1{width:420px;height:420px;background:#8b7cff;top:-120px;right:-60px}
+.blob.b2{width:340px;height:340px;background:#3fd0e0;bottom:-100px;left:-80px;animation-delay:-7s}
+.blob.b3{width:260px;height:260px;background:#ffa3c7;top:200px;left:40%;animation-delay:-12s;opacity:.35}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-26px) scale(1.06)}66%{transform:translate(-22px,18px) scale(.96)}}
+.badge{display:inline-flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line2);
+  color:var(--ink2);padding:6px 7px 6px 13px;border-radius:30px;font-size:12.5px;font-weight:500;margin-bottom:26px;box-shadow:var(--sh-xs)}
+.badge b{background:var(--grad);color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 4px var(--green-soft);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--green-soft)}50%{box-shadow:0 0 0 5px rgba(18,161,80,.08)}}
+.hero h1{font-size:clamp(40px,5.4vw,66px);font-weight:800;letter-spacing:-2.2px;line-height:1.04;margin-bottom:22px}
+.hero p.sub{font-size:clamp(16px,1.5vw,19px);color:var(--mut);max-width:480px;margin-bottom:34px}
+.search-box{background:var(--surface);border:1px solid var(--line2);border-radius:18px;padding:7px 7px 7px 9px;
+  display:flex;gap:8px;box-shadow:var(--sh-lg);transition:.25s var(--ease);align-items:center;max-width:520px}
+.search-box.focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft),var(--sh-lg)}
+.search-box .si{display:flex;align-items:center;flex:1;gap:10px;padding-left:6px;min-width:0}
+.search-box input{flex:1;background:transparent;border:none;outline:none;color:var(--ink);font-size:16px;padding:14px 2px;font-family:inherit;min-width:0}
+.search-box input::placeholder{color:var(--mut2)}
+.tld-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.tld-pills .lbl{color:var(--mut2);font-size:12.5px}
+.tld-pill{background:var(--surface);border:1px solid var(--line2);border-radius:30px;padding:5px 13px;font-size:12.5px;color:var(--ink2);cursor:pointer;transition:.15s;font-weight:500}
+.tld-pill:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft);transform:translateY(-1px)}
+.hero-visual{position:relative}
+.hero-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--sh-lg);overflow:hidden;transform:perspective(1400px) rotateY(-7deg) rotateX(3deg);transition:.5s var(--ease)}
+.hero-visual:hover .hero-card{transform:perspective(1400px) rotateY(-3deg) rotateX(1deg)}
+.hero-card .hc-top{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;background:var(--bg-soft)}
+.hero-card .hc-top .d{width:10px;height:10px;border-radius:50%}
+.hero-card .hc-top .url{margin-left:8px;font-size:11.5px;color:var(--mut2);background:var(--surface);padding:4px 10px;border-radius:7px;border:1px solid var(--line)}
+.hero-card .hc-body{padding:20px}
+.hc-row{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-radius:13px;margin-bottom:9px;border:1px solid var(--line);transition:.3s var(--ease)}
+.hc-row.ok{background:linear-gradient(100deg,var(--green-soft),var(--surface))}
+.hc-row .nm{font-weight:600;font-size:15px}.hc-row .nm .t{color:var(--brand)}
+.hc-row .pr{font-weight:700;font-size:14px}
+.hc-row .st{font-size:11px;font-weight:700;color:var(--green);display:flex;align-items:center;gap:5px}
+.hc-row .taken{font-size:12px;color:var(--mut2);font-style:italic}
+.float-chip{position:absolute;background:var(--surface);border:1px solid var(--line2);border-radius:14px;padding:11px 15px;box-shadow:var(--sh-lg);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;animation:floaty 5s ease-in-out infinite}
+.float-chip .ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff}
+.float-chip.fc1{top:-22px;left:-30px;animation-delay:0s}
+.float-chip.fc2{bottom:-24px;right:-20px;animation-delay:-2.5s}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.trust{display:flex;gap:26px;flex-wrap:wrap;margin-top:38px;color:var(--mut);font-size:13px;font-weight:500}
+.trust span{display:flex;align-items:center;gap:7px}.trust svg{color:var(--green);flex-shrink:0}
+@media(max-width:920px){.hero-grid{grid-template-columns:1fr;gap:60px}.hero-visual{max-width:460px;margin:0 auto}.hero p.sub{max-width:none}}
+
+/* logos band */
+.logos{padding:34px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface)}
+.logos .wrap{display:flex;align-items:center;gap:38px;flex-wrap:wrap;justify-content:center}
+.logos .lbl{font-size:12px;color:var(--mut2);font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.logos .brand{font-family:'Sora';font-weight:700;font-size:19px;color:var(--mut2);opacity:.6;transition:.2s;letter-spacing:-.5px}
+.logos .brand:hover{opacity:1;color:var(--ink2)}
+
+/* RESULTS */
+#results{max-width:760px;margin:30px auto 0;display:none}
+.res-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:0 2px}
+.res-head h3{font-size:14.5px;font-weight:600;color:var(--mut)}
+.spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite;margin:30px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.res-card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:15px 19px;display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;transition:.18s var(--ease);gap:14px;box-shadow:var(--sh-xs)}
+.res-card:hover{border-color:var(--line2);transform:translateY(-2px);box-shadow:var(--sh)}
+.res-card.featured{border-color:rgba(85,70,255,.3);background:linear-gradient(105deg,var(--brand-soft),var(--surface) 65%)}
+.res-left{display:flex;align-items:center;gap:13px;min-width:0}
+.res-status{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.res-status.avail{background:var(--green);box-shadow:0 0 0 4px var(--green-soft)}
+.res-status.taken{background:var(--red)}
+.res-name{font-size:17.5px;font-weight:600;letter-spacing:-.3px;word-break:break-all}.res-name .tld{color:var(--brand)}
+.res-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px}
+.res-tag.best{background:var(--brand-soft);color:var(--brand)}.res-tag.hot{background:#ffe9f1;color:#d6306e}
+.res-right{display:flex;align-items:center;gap:15px;flex-shrink:0}
+.res-price{text-align:right}.res-price .now{font-size:18px;font-weight:700}
+.res-price .old{font-size:12.5px;color:var(--mut2);text-decoration:line-through;margin-right:5px}
+.res-price .per{font-size:11px;color:var(--mut2);display:block}
+.res-taken{color:var(--mut2);font-size:13.5px;font-style:italic}
+/* sections */
+section.blk{padding:96px 0}
+.sec-head{text-align:center;max-width:680px;margin:0 auto 56px}
+.sec-head .kicker{color:var(--brand);font-weight:700;font-size:12.5px;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:14px;display:inline-block;background:var(--brand-soft);padding:6px 14px;border-radius:20px}
+.sec-head h2{font-size:clamp(30px,3.8vw,46px);font-weight:800;letter-spacing:-1.5px;margin-bottom:15px;line-height:1.08}
+.sec-head p{color:var(--mut);font-size:17.5px}
+
+/* AI */
+.ai-wrap{max-width:900px;margin:0 auto;background:var(--surface);border:1px solid var(--line2);border-radius:26px;
+  padding:8px;box-shadow:var(--sh-lg);display:grid;grid-template-columns:1fr;overflow:hidden}
+.ai-inner{padding:34px}
+.ai-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+.ai-chips .lbl{color:var(--mut2);font-size:12.5px;margin-right:2px}
+.ai-chip{font-size:12.5px;background:var(--bg-soft);border:1px solid var(--line);border-radius:20px;padding:6px 13px;cursor:pointer;color:var(--ink2);transition:.15s;font-weight:500}
+.ai-chip:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft);transform:translateY(-1px)}
+.ai-input-row{display:flex;gap:10px;margin:18px 0 4px;flex-wrap:wrap}
+.ai-input-row input{flex:1;min-width:220px;background:var(--bg-soft);border:1px solid var(--line2);border-radius:13px;padding:15px 17px;color:var(--ink);font-size:15px;outline:none;font-family:inherit;transition:.18s}
+.ai-input-row input:focus{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 4px var(--brand-soft)}
+.ai-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:11px;margin-top:24px}
+.ai-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 17px;display:flex;align-items:center;justify-content:space-between;transition:.18s var(--ease);box-shadow:var(--sh-xs)}
+.ai-card:hover{border-color:var(--brand);transform:translateY(-3px);box-shadow:var(--sh)}
+.ai-card .nm{font-weight:600;font-size:15px;word-break:break-all}.ai-card .nm .tld{color:var(--brand)}
+.ai-card .px{font-size:11.5px;color:var(--mut)}
+.ai-empty{grid-column:1/-1;text-align:center;color:var(--mut2);padding:28px;font-size:14px}
+
+/* features */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px}
+.feat-card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:30px;transition:.28s var(--ease);box-shadow:var(--sh-xs);position:relative;overflow:hidden}
+.feat-card::after{content:'';position:absolute;inset:0;border-radius:20px;padding:1px;background:var(--grad);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:.28s}
+.feat-card:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
+.feat-card:hover::after{opacity:1}
+.feat-ico{width:54px;height:54px;border-radius:15px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;background:var(--brand-soft);color:var(--brand)}
+.feat-card h3{font-size:19px;font-weight:700;margin-bottom:9px;letter-spacing:-.3px}
+.feat-card p{color:var(--mut);font-size:14.5px}
+
+/* showcase con foto real */
+.showcase{display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center;max-width:var(--max)}
+.showcase.rev{direction:rtl}.showcase.rev>*{direction:ltr}
+.showcase .sc-media{position:relative;border-radius:22px;overflow:hidden;box-shadow:var(--sh-lg);aspect-ratio:4/3;background:var(--bg-soft2)}
+.showcase .sc-media img{width:100%;height:100%;object-fit:cover}
+.showcase .sc-media .fallback{position:absolute;inset:0;background:var(--grad);display:flex;align-items:center;justify-content:center}
+.showcase h2{font-size:clamp(26px,3vw,38px);font-weight:800;letter-spacing:-1.2px;margin-bottom:16px;line-height:1.1}
+.showcase .kicker{color:var(--brand);font-weight:700;font-size:12.5px;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:12px;display:block}
+.showcase p{color:var(--mut);font-size:16px;margin-bottom:18px}
+.showcase ul{list-style:none}
+.showcase li{display:flex;gap:11px;align-items:flex-start;padding:8px 0;font-size:15px;color:var(--ink2)}
+.showcase li svg{flex-shrink:0;margin-top:3px;color:var(--green)}
+@media(max-width:860px){.showcase{grid-template-columns:1fr;gap:30px}.showcase.rev{direction:ltr}}
+
+/* comparison */
+.cmp{max-width:900px;margin:0 auto;background:var(--surface);border:1px solid var(--line2);border-radius:22px;overflow:hidden;box-shadow:var(--sh)}
+.cmp table{width:100%;border-collapse:collapse}
+.cmp th,.cmp td{padding:17px 22px;text-align:left;border-bottom:1px solid var(--line);font-size:14.5px}
+.cmp thead th{background:var(--bg-soft);font-weight:600;font-size:13.5px;color:var(--mut)}
+.cmp thead th.us{color:var(--brand);font-weight:800;font-family:'Sora'}
+.cmp td.feature{color:var(--ink2);font-weight:500}
+.cmp .yes{color:var(--green);font-weight:700}.cmp .no{color:var(--red);font-weight:600}
+.cmp .us-col{background:var(--brand-soft);font-weight:700;color:var(--ink)}
+.cmp tbody tr:last-child td{border-bottom:none}
+.cmp tbody tr{transition:.13s}.cmp tbody tr:hover{background:var(--bg-soft)}
+.cmp tbody tr:hover .us-col{background:#e6e2ff}
+
+/* pricing */
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:20px;max-width:1040px;margin:0 auto}
+.price-card{background:var(--surface);border:1px solid var(--line2);border-radius:22px;padding:30px;position:relative;transition:.28s var(--ease);box-shadow:var(--sh-xs)}
+.price-card:hover{transform:translateY(-6px);box-shadow:var(--sh-lg)}
+.price-card.pop{border-color:var(--brand);box-shadow:0 0 0 1px var(--brand),var(--sh-lg)}
+.price-card .pophdr{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--grad);color:#fff;font-size:10.5px;font-weight:700;padding:6px 15px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;box-shadow:var(--sh-glow)}
+.price-card h3{font-size:16px;margin-bottom:4px;color:var(--mut);font-family:'Inter';font-weight:600}
+.price-card .amt{font-size:40px;font-weight:800;letter-spacing:-1.8px;margin:6px 0 2px;font-family:'Sora'}
+.price-card .amt small{font-size:14px;color:var(--mut);font-weight:500}
+.price-card .desc{color:var(--mut);font-size:13px;margin-bottom:22px}
+.price-card ul{list-style:none;margin-bottom:24px}
+.price-card li{font-size:13.5px;color:var(--ink2);padding:7px 0;display:flex;gap:10px;align-items:flex-start}
+.price-card li svg{flex-shrink:0;margin-top:3px;color:var(--green)}
+.price-card .btn{width:100%;justify-content:center}
+
+/* CTA band */
+.cta-band{max-width:var(--max);margin:0 auto;background:var(--grad);border-radius:28px;padding:60px;text-align:center;position:relative;overflow:hidden;box-shadow:var(--sh-glow)}
+.cta-band::before{content:'';position:absolute;inset:0;background:radial-gradient(600px 300px at 20% 0%,rgba(255,255,255,.18),transparent)}
+.cta-band h2{color:#fff;font-size:clamp(28px,3.4vw,42px);font-weight:800;letter-spacing:-1.4px;margin-bottom:14px;position:relative}
+.cta-band p{color:rgba(255,255,255,.86);font-size:17px;margin-bottom:30px;position:relative}
+.cta-band .btn{position:relative;background:#fff;color:var(--brand)}
+.cta-band .btn:hover{background:#f3f1ff;transform:translateY(-2px)}
+/* dashboard */
+#dashboard{display:none;padding:42px 0 90px;min-height:72vh}
+.dash-shell{display:grid;grid-template-columns:235px 1fr;gap:26px;max-width:var(--max);margin:0 auto}
+.dash-side{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:22px 16px;height:fit-content;box-shadow:var(--sh-xs);position:sticky;top:92px}
+.dash-side .gr{font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--mut2);padding:0 12px;margin:16px 0 6px;font-weight:700}
+.dash-side .item{padding:11px 13px;border-radius:11px;color:var(--ink2);font-size:14px;margin-bottom:3px;display:flex;gap:11px;align-items:center;cursor:pointer;font-weight:500;transition:.13s}
+.dash-side .item:hover{background:var(--bg-soft)}
+.dash-side .item.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.dash-main h2{font-size:27px;letter-spacing:-.8px;margin-bottom:4px;font-family:'Sora'}
+.dash-main .wel{color:var(--mut);margin-bottom:26px}
+.dash-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:26px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:var(--sh-xs);transition:.2s}
+.stat:hover{box-shadow:var(--sh);transform:translateY(-2px)}
+.stat .lbl{font-size:12px;color:var(--mut);margin-bottom:8px;font-weight:500}
+.stat .val{font-size:28px;font-weight:800;letter-spacing:-1px;font-family:'Sora'}
+.stat .sub{font-size:12px;color:var(--green);font-weight:600;margin-top:3px}
+.dash-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:8px;box-shadow:var(--sh-xs)}
+.dd{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-radius:13px;transition:.13s}
+.dd:hover{background:var(--bg-soft)}.dd+.dd{border-top:1px solid var(--line)}
+.dd .nm{font-weight:600;font-size:15px}.dd .meta{font-size:12px;color:var(--mut);margin-top:2px}
+.dd .pill{font-size:11px;font-weight:700;padding:4px 11px;border-radius:20px;background:var(--green-soft);color:var(--green)}
+.dd .vis{font-size:13px;color:var(--ink2);font-weight:600;text-align:right}
+.empty-dash{text-align:center;padding:60px 20px;color:var(--mut)}
+@media(max-width:760px){.dash-shell{grid-template-columns:1fr}.dash-side{display:none}.dash-stats{grid-template-columns:1fr}}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:62px 0 32px;margin-top:36px;background:var(--surface)}
+.foot-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1.2fr;gap:30px;margin-bottom:44px}
+.foot-top h4{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--mut2);margin-bottom:16px;font-weight:700}
+.foot-top a{display:block;color:var(--mut);font-size:14px;padding:5px 0;transition:.15s;cursor:pointer}
+.foot-top a:hover{color:var(--brand)}
+.foot-brand p{color:var(--mut);font-size:14px;max-width:250px;margin-top:12px}
+.foot-tools{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.foot-mini{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut)}
+.foot-mini select{flex:1;background:var(--bg-soft);border:1px solid var(--line2);border-radius:9px;padding:8px 10px;font-family:inherit;font-size:12.5px;color:var(--ink2);cursor:pointer;outline:none}
+.foot-mini select:focus{border-color:var(--brand)}
+.foot-bot{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;color:var(--mut2);font-size:13px;flex-wrap:wrap;gap:12px}
+@media(max-width:780px){.foot-top{grid-template-columns:1fr 1fr}}
+
+/* cart drawer */
+.overlay{position:fixed;inset:0;background:rgba(10,12,40,.42);backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:.25s}
+.overlay.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:440px;max-width:92vw;background:var(--surface);z-index:201;transform:translateX(100%);transition:.34s var(--ease);display:flex;flex-direction:column;box-shadow:-24px 0 70px rgba(10,12,40,.18)}
+.drawer.show{transform:translateX(0)}
+.drawer-head{padding:24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.drawer-head h3{font-size:19px;font-family:'Sora'}
+.close-x{cursor:pointer;color:var(--mut);font-size:24px;line-height:1;background:none;border:none;width:34px;height:34px;border-radius:9px;transition:.13s}
+.close-x:hover{background:var(--bg-soft);color:var(--ink)}
+.drawer-body{flex:1;overflow-y:auto;padding:20px 24px}
+.cart-item{display:flex;justify-content:space-between;align-items:flex-start;padding:15px;background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;margin-bottom:11px}
+.cart-item .nm{font-weight:600;font-size:15px;word-break:break-all}
+.cart-item .meta{font-size:12px;color:var(--mut);margin-top:3px}
+.cart-item .rm{cursor:pointer;color:var(--mut2);background:none;border:none;font-size:12.5px;margin-top:6px;padding:0}
+.cart-item .rm:hover{color:var(--red)}
+.cart-empty{text-align:center;color:var(--mut2);padding:54px 20px}
+.drawer-foot{padding:24px;border-top:1px solid var(--line);background:var(--bg-soft)}
+.cart-row{display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px;color:var(--mut)}
+.cart-row.total{font-size:20px;font-weight:700;color:var(--ink);margin:14px 0 18px;font-family:'Sora'}
+.drawer-foot .btn{width:100%;justify-content:center;font-size:16px;padding:15px}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(10,12,40,.5);backdrop-filter:blur(6px)}
+.modal.show{display:flex}
+.modal-card{background:var(--surface);border-radius:22px;max-width:460px;width:100%;padding:34px;box-shadow:var(--sh-lg);max-height:92vh;overflow-y:auto;animation:pop .28s var(--ease)}
+@keyframes pop{from{transform:scale(.94) translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.modal-card h3{font-size:23px;margin-bottom:6px;letter-spacing:-.5px;font-family:'Sora'}
+.modal-card .msub{color:var(--mut);font-size:14.5px;margin-bottom:24px}
+.tabs{display:flex;background:var(--bg-soft);border-radius:12px;padding:4px;margin-bottom:22px}
+.tabs button{flex:1;border:none;background:none;padding:10px;border-radius:9px;font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;color:var(--mut);transition:.15s}
+.tabs button.on{background:var(--surface);color:var(--ink);box-shadow:var(--sh-xs)}
+.fld{margin-bottom:15px}
+.fld label{display:block;font-size:13px;color:var(--ink2);margin-bottom:7px;font-weight:500}
+.fld input{width:100%;background:var(--bg-soft);border:1px solid var(--line2);border-radius:11px;padding:13px 15px;color:var(--ink);font-size:15px;outline:none;font-family:inherit;transition:.15s}
+.fld input:focus{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 4px var(--brand-soft)}
+.fld-row{display:flex;gap:12px}
+.err{background:#fdecef;color:var(--red);font-size:13px;padding:10px 13px;border-radius:10px;margin-bottom:14px;display:none}
+.err.show{display:block}
+.success-check{width:72px;height:72px;border-radius:50%;background:var(--green-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;animation:pop .4s var(--ease)}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(130px);background:var(--ink);color:#fff;padding:14px 22px;border-radius:14px;z-index:300;font-size:14.5px;font-weight:500;box-shadow:var(--sh-lg);transition:.35s var(--ease);display:flex;align-items:center;gap:10px;max-width:90vw}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ===== MENU MOVIL ===== */
+.m-overlay{position:fixed;inset:0;background:rgba(10,12,40,.45);backdrop-filter:blur(4px);z-index:210;opacity:0;pointer-events:none;transition:.25s}
+.m-overlay.show{opacity:1;pointer-events:auto}
+.m-menu{position:fixed;top:0;right:0;height:100%;width:300px;max-width:85vw;background:var(--surface);z-index:211;transform:translateX(100%);transition:.32s var(--ease);display:flex;flex-direction:column;box-shadow:-24px 0 70px rgba(10,12,40,.2);padding:20px}
+.m-menu.show{transform:translateX(0)}
+.m-menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.m-links{display:flex;flex-direction:column;padding:10px 0;border-bottom:1px solid var(--line)}
+.m-links a{padding:13px 8px;font-size:16px;font-weight:600;color:var(--ink2);border-radius:10px;cursor:pointer;transition:.13s}
+.m-links a:hover{background:var(--brand-soft);color:var(--brand)}
+.m-tools{padding:16px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.m-tool-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:var(--mut);font-weight:500}
+.m-tool-row select{flex:1;max-width:150px;background:var(--bg-soft);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:14px;color:var(--ink);cursor:pointer;outline:none}
+.m-tool-row select:focus{border-color:var(--brand)}
+.m-actions{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:16px}
+
+/* ===== OPTIMIZACION MOVIL ===== */
+@media(max-width:1080px){.burger{display:flex}}
+@media(min-width:1081px){.burger{display:none}}
+
+@media(max-width:768px){
+  .wrap{padding:0 18px}
+  section.blk{padding:62px 0}
+  .nav-in{height:62px}
+  .nav-icon,.burger{width:40px;height:40px}
+  .hero{padding:44px 0 38px}
+  .hero-grid{gap:42px}
+  .hero h1{font-size:clamp(34px,9vw,46px);letter-spacing:-1.4px}
+  .hero p.sub{font-size:16px}
+  .badge{margin-bottom:20px}
+  .search-box{max-width:none}
+  .search-box input{font-size:16px}
+  .trust{gap:14px 20px;margin-top:28px;font-size:12.5px}
+  .float-chip{display:none}
+  .hero-card{transform:none}
+  .hero-visual:hover .hero-card{transform:none}
+  .logos .wrap{gap:18px 26px}.logos .brand{font-size:16px}
+  .sec-head{margin-bottom:38px}
+  .sec-head h2{font-size:clamp(26px,7vw,34px);letter-spacing:-1px}
+  .sec-head p{font-size:15.5px}
+  .ai-inner{padding:22px 18px}
+  .ai-results{grid-template-columns:1fr}
+  .feat-grid{gap:14px}
+  .feat-card{padding:24px}
+  .showcase{gap:26px}
+  .showcase h2{font-size:clamp(24px,6.5vw,30px)}
+  .cmp{border-radius:16px}
+  .cmp th,.cmp td{padding:13px 12px;font-size:13px}
+  .cmp thead th{font-size:12px}
+  .price-grid{gap:14px}
+  .cta-band{padding:40px 24px;border-radius:22px}
+  .cta-band h2{font-size:clamp(24px,6.5vw,32px)}
+  .cta-band p{font-size:15.5px}
+  .drawer{width:100%;max-width:100%}
+  .modal-card{padding:26px 22px}
+  .dash-main h2{font-size:23px}
+  .res-card{padding:13px 15px}
+  .res-name{font-size:16px}
+  .res-price .now{font-size:16px}
+}
+@media(max-width:420px){
+  .hero h1{font-size:34px}
+  .search-box{flex-direction:column;padding:10px;gap:10px}
+  .search-box .si{width:100%;background:var(--bg-soft);border-radius:12px;padding:4px 10px}
+  .search-box .btn{width:100%;justify-content:center;padding:14px}
+  .tld-pills{margin-top:14px}
+  .cta-band{padding:32px 18px}
+  .feat-card{padding:20px}
+  .cmp th:nth-child(4),.cmp td:nth-child(4){display:none}
+  .modal-card{padding:22px 18px}
+}
+</style>
+</head>
+<body>
+<!-- NAV -->
+<header class="nav" id="nav"><div class="wrap nav-in">
+  <a href="#" class="logo" onclick="showHome();return false;">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="url(#lg)"/><path d="M9 10h6.5c4 0 6.5 2.4 6.5 6s-2.5 6-6.5 6H9V10z" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.3" fill="#fff"/><defs><linearGradient id="lg" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#5546ff"/><stop offset="1" stop-color="#07b6cc"/></linearGradient></defs></svg>
+    Dominzo
+  </a>
+  <nav class="nav-links">
+    <a onclick="showHome();scrollToId('buscar')">Buscar</a>
+    <a onclick="showHome();scrollToId('ia')">IA de nombres</a>
+    <a onclick="showHome();scrollToId('precios')">Precios</a>
+    <a onclick="showHome();scrollToId('comparar')">Comparativa</a>
+  </nav>
+  <div class="nav-right">
+    <!-- divisa minimalista -->
+    <div class="mini-sel cur nav-hide-sm" id="curSel">
+      <button onclick="toggleMini('curSel')"><span id="curLabel">USD</span><span class="chev">▼</span></button>
+      <div class="mini-pop" id="curPop"></div>
+    </div>
+    <!-- idioma minimalista -->
+    <div class="mini-sel cur nav-hide-sm" id="langSel">
+      <button onclick="toggleMini('langSel')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.7"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20a15 15 0 0 1 0-20z"/></svg><span id="langLabel">ES</span><span class="chev">▼</span></button>
+      <div class="mini-pop" id="langPop"></div>
+    </div>
+    <div id="userChip" onclick="showDash()"><span class="avatar" id="userAv">U</span><span id="userName">Usuario</span></div>
+    <button class="btn btn-soft btn-sm nav-hide-sm" id="loginBtn" onclick="openAuth('login')">Entrar</button>
+    <button class="nav-icon" onclick="openCart()" aria-label="Carrito">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+      <span class="cart-count hide" id="cartCount">0</span>
+    </button>
+    <button class="burger" id="burger" onclick="toggleMobileMenu()" aria-label="Menú">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</div></header>
+
+<!-- MENU MOVIL -->
+<div class="m-overlay" id="mOverlay" onclick="closeMobileMenu()"></div>
+<aside class="m-menu" id="mMenu">
+  <div class="m-menu-head">
+    <span class="logo" style="font-size:18px"><svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="url(#lgm)"/><path d="M9 10h6.5c4 0 6.5 2.4 6.5 6s-2.5 6-6.5 6H9V10z" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.3" fill="#fff"/><defs><linearGradient id="lgm" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#5546ff"/><stop offset="1" stop-color="#07b6cc"/></linearGradient></defs></svg> Dominzo</span>
+    <button class="close-x" onclick="closeMobileMenu()">&times;</button>
+  </div>
+  <nav class="m-links">
+    <a onclick="mNav('buscar')">Buscar</a>
+    <a onclick="mNav('ia')">IA de nombres</a>
+    <a onclick="mNav('precios')">Precios</a>
+    <a onclick="mNav('comparar')">Comparativa</a>
+  </nav>
+  <div class="m-tools">
+    <div class="m-tool-row"><span>Moneda</span><select id="mCur" onchange="setCurrencyFromFooter(this.value)"></select></div>
+    <div class="m-tool-row"><span>Idioma</span><select id="mLang" onchange="setLangFromFooter(this.value)"></select></div>
+  </div>
+  <div class="m-actions">
+    <button class="btn btn-soft" id="mLoginBtn" style="width:100%;justify-content:center" onclick="closeMobileMenu();openAuth('login')">Iniciar sesión</button>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="closeMobileMenu();mNav('buscar')">Buscar mi dominio</button>
+  </div>
+</aside>
+
+<main id="home">
+<!-- HERO -->
+<section class="hero" id="buscar">
+  <div class="hero-bg"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="badge reveal"><span class="dot"></span> Precio honesto de por vida <b>IA · NUEVO</b></span>
+      <h1 class="reveal" data-d="1">El dominio perfecto,<br><span class="gt">en segundos.</span></h1>
+      <p class="sub reveal" data-d="2" data-i18n="hero_sub">Busca, genera con IA y registra tu dominio más barato que en cualquier otro sitio. Sin precios gancho, sin upsells, sin sorpresas.</p>
+      <div class="search-box reveal" data-d="3" id="searchBox">
+        <div class="si">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9499b4" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="searchInput" type="text" placeholder="minegocio, cafelola, tustartup..." autocomplete="off">
+        </div>
+        <button class="btn btn-primary" onclick="doSearch()">Buscar</button>
+      </div>
+      <div class="tld-pills reveal" data-d="4">
+        <span class="lbl">Prueba:</span>
+        <span class="tld-pill" onclick="quickSearch('minegocio')">minegocio.com</span>
+        <span class="tld-pill" onclick="quickSearch('cafelola')">cafelola.io</span>
+        <span class="tld-pill" onclick="quickSearch('nova')">nova.ai</span>
+      </div>
+      <div class="trust reveal" data-d="4">
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> +2.4M dominios</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> WHOIS y SSL gratis</span>
+        <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Soporte 24/7</span>
+      </div>
+    </div>
+    <div class="hero-visual reveal" data-d="2">
+      <div class="float-chip fc1"><span class="ic" style="background:var(--grad)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2L12 16.6 5.7 21l2.3-7.2-6-4.4h7.6z"/></svg></span>IA de nombres</div>
+      <div class="float-chip fc2"><span class="ic" style="background:var(--green)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg></span>Activo en 60s</div>
+      <div class="hero-card">
+        <div class="hc-top"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="url">dominzo.com</span></div>
+        <div class="hc-body">
+          <div class="hc-row ok"><span class="nm">cafelola<span class="t">.io</span></span><div style="text-align:right"><span class="pr">$24.99</span><div class="st">● Disponible</div></div></div>
+          <div class="hc-row ok"><span class="nm">cafelola<span class="t">.com</span></span><div style="text-align:right"><span class="pr">$6.99</span><div class="st">● Disponible</div></div></div>
+          <div class="hc-row"><span class="nm" style="color:var(--mut)">cafelola<span style="color:var(--mut2)">.net</span></span><span class="taken">No disponible</span></div>
+          <div class="hc-row ok"><span class="nm">cafelola<span class="t">.shop</span></span><div style="text-align:right"><span class="pr">$3.99</span><div class="st">● Disponible</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap"><div id="results"></div></div>
+</section>
+
+<!-- logos -->
+<div class="logos"><div class="wrap">
+  <span class="lbl">Con la confianza de equipos en</span>
+  <span class="brand">Nebula</span><span class="brand">Orbital</span><span class="brand">Quantyx</span><span class="brand">Lumora</span><span class="brand">Vortex</span>
+</div></div>
+<!-- IA -->
+<section class="blk" id="ia" style="background:var(--bg-soft)"><div class="wrap">
+  <div class="sec-head reveal">
+    <span class="kicker">Innovación que GoDaddy no tiene</span>
+    <h2 data-i18n="ia_h">Pon a la IA a inventar tu marca</h2>
+    <p>Describe tu negocio y generamos nombres de dominio disponibles, con precio al instante.</p>
+  </div>
+  <div class="ai-wrap reveal" data-d="1"><div class="ai-inner">
+    <div class="ai-chips">
+      <span class="lbl">Prueba:</span>
+      <span class="ai-chip" onclick="aiPrompt('cafetería de especialidad en Madrid')">cafetería de especialidad</span>
+      <span class="ai-chip" onclick="aiPrompt('app de fitness con IA')">app de fitness</span>
+      <span class="ai-chip" onclick="aiPrompt('tienda de ropa sostenible')">ropa sostenible</span>
+      <span class="ai-chip" onclick="aiPrompt('consultora financiera')">consultora financiera</span>
+    </div>
+    <div class="ai-input-row">
+      <input id="aiInput" type="text" placeholder="Ej: una marca de chocolate artesanal premium...">
+      <button class="btn btn-primary" onclick="doAI()">✨ Generar</button>
+    </div>
+    <div class="ai-results" id="aiResults"><div class="ai-empty">Describe tu negocio para generar nombres ✨</div></div>
+  </div></div>
+</div></section>
+
+<!-- features -->
+<section class="blk"><div class="wrap">
+  <div class="sec-head reveal"><span class="kicker">Por qué Dominzo</span><h2 data-i18n="feat_h">Mejor en todo lo que importa</h2></div>
+  <div class="feat-grid">
+    <div class="feat-card reveal"><div class="feat-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg></div><h3>Checkout en 1 clic</h3><p>Sin 6 pantallas de upsells. Eliges, pagas y tu dominio queda activo en menos de 60 segundos.</p></div>
+    <div class="feat-card reveal" data-d="1"><div class="feat-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></div><h3>Precio honesto de por vida</h3><p>El precio que ves al registrar es el de la renovación. Para siempre. Sin precios gancho.</p></div>
+    <div class="feat-card reveal" data-d="2"><div class="feat-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9zM2 10h2M2 14h2M20 10h2M20 14h2M10 2v2M14 2v2M10 20v2M14 20v2"/></svg></div><h3>IA de naming integrada</h3><p>La única plataforma que inventa tu marca y comprueba disponibilidad en tiempo real.</p></div>
+    <div class="feat-card reveal"><div class="feat-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg></div><h3>Privacidad y SSL gratis</h3><p>WHOIS privado, certificado SSL y protección anti-robo incluidos. La competencia los cobra aparte.</p></div>
+    <div class="feat-card reveal" data-d="1"><div class="feat-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div><h3>Panel con analytics</h3><p>Métricas de tráfico, DNS visual y alertas de expiración en un dashboard moderno y claro.</p></div>
+    <div class="feat-card reveal" data-d="2"><div class="feat-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20a15 15 0 0 1 0-20z"/></svg></div><h3>Divisas y traductor</h3><p>Convierte precios a 15 monedas y traduce tu contenido a 12 idiomas. Vende a todo el mundo.</p></div>
+  </div>
+</div></section>
+
+<!-- showcase 1 con foto real -->
+<section class="blk" style="background:var(--bg-soft)"><div class="wrap showcase reveal">
+  <div class="sc-media">
+    <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=900&q=80&auto=format&fit=crop" alt="Panel de analytics" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fallback" style="display:none"><svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg></div>
+  </div>
+  <div class="sc-copy">
+    <span class="kicker">Panel de control</span>
+    <h2 data-i18n="sc1_h">Gestiona todo desde un solo lugar</h2>
+    <p>DNS visual, analytics de tráfico, alertas de renovación y facturación. Diseñado para que cualquiera lo entienda, sin manuales.</p>
+    <ul>
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Estadísticas de tráfico en tiempo real</li>
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Editor de DNS visual, sin tecnicismos</li>
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Alertas antes de cada renovación</li>
+    </ul>
+  </div>
+</div></section>
+
+<!-- showcase 2 con foto real (invertido) -->
+<section class="blk"><div class="wrap showcase rev reveal">
+  <div class="sc-media">
+    <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=900&q=80&auto=format&fit=crop" alt="Equipo trabajando" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="fallback" style="display:none"><svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a6 6 0 0 1 6-6M16 11l2 2 4-4"/></svg></div>
+  </div>
+  <div class="sc-copy">
+    <span class="kicker">Para emprendedores</span>
+    <h2 data-i18n="sc2_h">De la idea a la marca en una tarde</h2>
+    <p>Genera el nombre con IA, regístralo al instante y empieza a vender. Todo el papeleo técnico — DNS, SSL, privacidad — lo manejamos nosotros.</p>
+    <ul>
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Nombres de marca generados por IA</li>
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Conversor de divisas y traductor integrados</li>
+      <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Soporte humano 24/7 en español</li>
+    </ul>
+  </div>
+</div></section>
+<!-- comparison -->
+<section class="blk" id="comparar" style="background:var(--bg-soft)"><div class="wrap">
+  <div class="sec-head reveal"><span class="kicker">Comparativa honesta</span><h2 data-i18n="cmp_h">Dominzo vs. la competencia</h2><p>Sin letra pequeña. Esto es lo que de verdad pagas y recibes.</p></div>
+  <div class="cmp reveal" data-d="1"><table>
+    <thead><tr><th>Característica</th><th class="us">Dominzo</th><th>GoDaddy</th><th>Namecheap</th></tr></thead>
+    <tbody>
+    <tr><td class="feature">.com primer año</td><td class="us-col">$6.99</td><td>$11.99</td><td>$9.98</td></tr>
+    <tr><td class="feature">.com renovación</td><td class="us-col">$8.99</td><td>$21.99</td><td>$15.88</td></tr>
+    <tr><td class="feature">Privacidad WHOIS</td><td class="us-col yes">Gratis</td><td class="no">+$9.99/año</td><td class="yes">Gratis</td></tr>
+    <tr><td class="feature">SSL básico</td><td class="us-col yes">Incluido</td><td class="no">Extra</td><td class="no">Extra</td></tr>
+    <tr><td class="feature">Generador IA de nombres</td><td class="us-col yes">Sí</td><td class="no">No</td><td class="no">No</td></tr>
+    <tr><td class="feature">Checkout 1-clic sin upsells</td><td class="us-col yes">Sí</td><td class="no">No</td><td class="no">No</td></tr>
+    <tr><td class="feature">Divisas + traductor</td><td class="us-col yes">Sí</td><td class="no">No</td><td class="no">No</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<!-- pricing -->
+<section class="blk" id="precios"><div class="wrap">
+  <div class="sec-head reveal"><span class="kicker">Precios</span><h2 data-i18n="price_h">Más barato. Para siempre.</h2><p>Mismo precio al registrar y al renovar. Lo que ves es lo que pagas.</p></div>
+  <div class="price-grid">
+    <div class="price-card reveal"><h3>.com</h3><div class="amt" data-usd="6.99">$6.99<small>/año</small></div><p class="desc">El clásico de confianza. Renueva a $8.99.</p><ul><li>✓ Privacidad WHOIS gratis</li><li>✓ SSL incluido</li><li>✓ DNS premium</li><li>✓ Email forwarding</li></ul><button class="btn btn-ghost" onclick="quickSearch('minegocio')">Buscar .com</button></div>
+    <div class="price-card pop reveal" data-d="1"><span class="pophdr">Más popular</span><h3>.io</h3><div class="amt" data-usd="24.99">$24.99<small>/año</small></div><p class="desc">El favorito de startups y tech.</p><ul><li>✓ Privacidad WHOIS gratis</li><li>✓ SSL incluido</li><li>✓ DNS premium global</li><li>✓ Analytics avanzado</li></ul><button class="btn btn-primary" onclick="quickSearch('tustartup')">Buscar .io</button></div>
+    <div class="price-card reveal" data-d="2"><h3>.ai</h3><div class="amt" data-usd="54.99">$54.99<small>/año</small></div><p class="desc">Para proyectos de IA.</p><ul><li>✓ Privacidad WHOIS gratis</li><li>✓ SSL incluido</li><li>✓ DNS premium</li><li>✓ Soporte prioritario</li></ul><button class="btn btn-ghost" onclick="quickSearch('nova')">Buscar .ai</button></div>
+    <div class="price-card reveal" data-d="3"><h3>.shop</h3><div class="amt" data-usd="3.99">$3.99<small>/año</small></div><p class="desc">Ideal para e-commerce.</p><ul><li>✓ Privacidad WHOIS gratis</li><li>✓ SSL incluido</li><li>✓ Integración tiendas</li><li>✓ Redirecciones</li></ul><button class="btn btn-ghost" onclick="quickSearch('mitienda')">Buscar .shop</button></div>
+  </div>
+</div></section>
+
+<!-- CTA -->
+<section class="blk"><div class="wrap"><div class="cta-band reveal">
+  <h2 data-i18n="cta_h">Tu marca empieza con un dominio</h2>
+  <p data-i18n="cta_p">Búscalo, genéralo con IA y regístralo en segundos. Más barato, para siempre.</p>
+  <button class="btn btn-lg" onclick="showHome();scrollToId('buscar')">Buscar mi dominio →</button>
+</div></div></section>
+</main>
+
+<!-- DASHBOARD -->
+<section id="dashboard"><div class="wrap"><div class="dash-shell">
+  <aside class="dash-side">
+    <div class="gr">Principal</div>
+    <div class="item on">📊 Resumen</div>
+    <div class="item" onclick="showHome();scrollToId('buscar')">🌐 Comprar dominio</div>
+    <div class="gr">Cuenta</div>
+    <div class="item">⚙️ DNS</div><div class="item">📈 Analytics</div><div class="item">🔔 Alertas</div>
+    <div class="item" onclick="logout()">↩ Cerrar sesión</div>
+  </aside>
+  <div class="dash-main">
+    <h2 id="dashHi">Tu panel</h2><p class="wel" id="dashWel">Gestiona tus dominios desde aquí.</p>
+    <div class="dash-stats" id="dashStats"></div>
+    <h3 style="font-size:17px;margin:6px 2px 12px;font-family:'Sora'">Mis dominios</h3>
+    <div class="dash-card" id="dashDomains"></div>
+  </div>
+</div></div></section>
+
+<!-- FOOTER -->
+<footer><div class="wrap">
+  <div class="foot-top">
+    <div class="foot-brand">
+      <a href="#" class="logo"><svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="9" fill="url(#lg3)"/><path d="M9 10h6.5c4 0 6.5 2.4 6.5 6s-2.5 6-6.5 6H9V10z" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><circle cx="16" cy="16" r="2.3" fill="#fff"/><defs><linearGradient id="lg3" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#5546ff"/><stop offset="1" stop-color="#07b6cc"/></linearGradient></defs></svg>Dominzo</a>
+      <p>Dominios honestos, baratos e inteligentes. Tu marca empieza aquí.</p>
+      <div class="foot-tools">
+        <div class="foot-mini"><span>Moneda</span><select id="footCur" onchange="setCurrencyFromFooter(this.value)"></select></div>
+        <div class="foot-mini"><span>Idioma</span><select id="footLang" onchange="setLangFromFooter(this.value)"></select></div>
+      </div>
+    </div>
+    <div><h4>Producto</h4><a onclick="showHome();scrollToId('buscar')">Buscar dominios</a><a onclick="showHome();scrollToId('ia')">IA de nombres</a><a onclick="showHome();scrollToId('precios')">Precios</a></div>
+    <div><h4>Empresa</h4><a>Sobre nosotros</a><a>Blog</a><a>Empleo</a><a>Prensa</a></div>
+    <div><h4>Soporte</h4><a>Ayuda 24/7</a><a>Estado</a><a>Transferir dominio</a><a>Contacto</a></div>
+    <div><h4>Legal</h4><a>Privacidad</a><a>Términos</a><a>ICANN</a><a>Cookies</a></div>
+  </div>
+  <div class="foot-bot"><span>© 2026 Dominzo Inc. Todos los derechos reservados.</span><span>Hecho con ⚡ para emprendedores · ICANN acreditado (demo)</span></div>
+</div></footer>
+
+<!-- cart -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head"><h3>Tu carrito</h3><button class="close-x" onclick="closeCart()">&times;</button></div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot"></div>
+</aside>
+<div class="modal" id="modal"><div class="modal-card" id="modalInner"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const API='';
+let token=localStorage.getItem('dz_token')||null, user=null, cart=[], lastQuery='';
+let curRate=1, curCode='USD', curSym='$';
+const CURRENCIES=[['USD','$','🇺🇸'],['EUR','€','🇪🇺'],['MXN','$','🇲🇽'],['GBP','£','🇬🇧'],['JPY','¥','🇯🇵'],['CAD','$','🇨🇦'],['AUD','$','🇦🇺'],['BRL','R$','🇧🇷'],['ARS','$','🇦🇷'],['COP','$','🇨🇴'],['CLP','$','🇨🇱'],['PEN','S/','🇵🇪'],['CNY','¥','🇨🇳'],['INR','₹','🇮🇳'],['CHF','Fr','🇨🇭']];
+const LANGS=[['es','ES','🇪🇸','Español'],['en','EN','🇬🇧','Inglés'],['fr','FR','🇫🇷','Francés'],['de','DE','🇩🇪','Alemán'],['pt','PT','🇵🇹','Portugués'],['it','IT','🇮🇹','Italiano'],['zh','ZH','🇨🇳','Chino'],['ja','JA','🇯🇵','Japonés']];
+
+async function api(path,opts={}){
+  const h={'Content-Type':'application/json'};
+  if(token)h['Authorization']='Bearer '+token;
+  const r=await fetch(API+path,{...opts,headers:{...h,...(opts.headers||{})}});
+  let d={};try{d=await r.json()}catch{}
+  if(!r.ok)throw new Error(d.error||'Error');return d;
+}
+function scrollToId(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:'smooth'});}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function showHome(){document.getElementById('home').style.display='';document.getElementById('dashboard').style.display='none';window.scrollTo({top:0});}
+function showDash(){if(!user)return openAuth('login');document.getElementById('home').style.display='none';document.getElementById('dashboard').style.display='block';window.scrollTo({top:0});loadDash();}
+
+/* ---- precio con divisa ---- */
+function px(usd){
+  const v=usd*curRate;
+  const dec=(curCode==='JPY'||curCode==='CLP'||curCode==='COP')?0:2;
+  const f=new Intl.NumberFormat('es',{minimumFractionDigits:dec,maximumFractionDigits:dec}).format(v);
+  return curSym+f+(curCode!=='USD'?' '+curCode:'');
+}
+function refreshPriceLabels(){
+  document.querySelectorAll('.amt[data-usd]').forEach(el=>{
+    const usd=parseFloat(el.dataset.usd);
+    el.innerHTML=px(usd)+'<small>/año</small>';
+  });
+  if(lastQuery)doSearch();
+}
+
+/* ---- mini selectores ---- */
+function toggleMini(id){const e=document.getElementById(id);document.querySelectorAll('.mini-sel').forEach(m=>{if(m!==e)m.classList.remove('open')});e.classList.toggle('open');}
+/* ---- menú móvil ---- */
+function toggleMobileMenu(){const m=document.getElementById('mMenu'),o=document.getElementById('mOverlay');const open=m.classList.toggle('show');o.classList.toggle('show',open);document.body.style.overflow=open?'hidden':'';}
+function closeMobileMenu(){document.getElementById('mMenu').classList.remove('show');document.getElementById('mOverlay').classList.remove('show');document.body.style.overflow='';}
+function mNav(id){closeMobileMenu();showHome();setTimeout(()=>scrollToId(id),120);}
+document.addEventListener('click',e=>{if(!e.target.closest('.mini-sel'))document.querySelectorAll('.mini-sel').forEach(m=>m.classList.remove('open'))});
+
+function buildSelectors(){
+  // navbar currency popup
+  document.getElementById('curPop').innerHTML=CURRENCIES.map(([c,sym,fl])=>`<div class="opt${c===curCode?' on':''}" onclick="setCurrency('${c}','${sym}')"> ${c} <span style="margin-left:auto;color:var(--mut2)">${sym}</span></div>`).join('');
+  // navbar lang popup
+  document.getElementById('langPop').innerHTML=LANGS.map(([c,ab,fl,nm])=>`<div class="opt${c===siteLang?' on':''}" onclick="setLang('${c}')"><span class="flag" style="font-size:11px;font-weight:700;color:var(--mut2);min-width:22px">${ab}</span> ${nm}</div>`).join('');
+  // footer selects
+  document.getElementById('footCur').innerHTML=CURRENCIES.map(([c])=>`<option value="${c}"${c===curCode?' selected':''}>${c}</option>`).join('');
+  document.getElementById('footLang').innerHTML=LANGS.map(([c,ab,fl,nm])=>`<option value="${c}"${c===siteLang?' selected':''}>${nm}</option>`).join('');
+  // mobile menu selects
+  var mc=document.getElementById('mCur');if(mc)mc.innerHTML=CURRENCIES.map(([c])=>`<option value="${c}"${c===curCode?' selected':''}>${c}</option>`).join('');
+  var ml=document.getElementById('mLang');if(ml)ml.innerHTML=LANGS.map(([c,ab,fl,nm])=>`<option value="${c}"${c===siteLang?' selected':''}>${nm}</option>`).join('');
+}
+async function setCurrency(code,sym){
+  curCode=code;curSym=sym;
+  document.getElementById('curLabel').textContent=code;
+  document.getElementById('curSel').classList.remove('open');
+  if(code==='USD'){curRate=1;}
+  else{try{const d=await api(`/api/convert?from=USD&to=${code}&amount=1`);curRate=d.rate||1;}catch{curRate=1;}}
+  buildSelectors();refreshPriceLabels();
+  showToast(`Moneda: ${code}`);
+}
+function setCurrencyFromFooter(code){const c=CURRENCIES.find(x=>x[0]===code);if(c)setCurrency(c[0],c[1]);}
+
+/* ---- traductor de sitio (idioma) ---- */
+let siteLang='es';
+const I18N_BASE={}; // se llena al cargar con los textos originales
+function collectTranslatable(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{I18N_BASE[el.dataset.i18n]=el.textContent;});
+}
+async function setLang(code){
+  siteLang=code;
+  const l=LANGS.find(x=>x[0]===code);
+  document.getElementById('langLabel').textContent=l[1];
+  var lf=document.getElementById('langFlag');if(lf)lf.textContent=l[2];
+  document.getElementById('langSel').classList.remove('open');
+  buildSelectors();
+  if(code==='es'){ // restaurar original
+    document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=I18N_BASE[el.dataset.i18n];});
+    showToast('Idioma: Español');return;
+  }
+  showToast('Traduciendo a '+l[3]+'...');
+  const nodes=[...document.querySelectorAll('[data-i18n]')];
+  for(const el of nodes){
+    const orig=I18N_BASE[el.dataset.i18n];
+    try{const d=await api(`/api/translate?text=${encodeURIComponent(orig)}&from=es&to=${code}`);if(d.translation)el.textContent=d.translation;}catch{}
+  }
+  showToast('Idioma: '+l[3]);
+}
+function setLangFromFooter(code){setLang(code);}
+/* ---- SEARCH ---- */
+function quickSearch(n){document.getElementById('searchInput').value=n;showHome();scrollToId('buscar');setTimeout(doSearch,300);}
+async function doSearch(){
+  const q=document.getElementById('searchInput').value.trim();
+  const box=document.getElementById('results');
+  if(!q){box.style.display='none';return;}
+  lastQuery=q;box.style.display='block';box.innerHTML='<div class="spinner"></div>';
+  try{renderResults(await api('/api/search?q='+encodeURIComponent(q)));}
+  catch(e){box.innerHTML='<p style="text-align:center;color:var(--mut)">Error al buscar. ¿Está el servidor encendido?</p>';}
+}
+function renderResults(data){
+  const box=document.getElementById('results');
+  if(!data.results.length){box.style.display='none';return;}
+  const avail=data.results.filter(r=>r.available).length;
+  let html=`<div class="res-head"><h3>Resultados para "<b style="color:var(--ink)">${esc(data.name)}</b>" — ${avail} disponibles</h3></div>`;
+  [...data.results].sort((a,b)=>b.available-a.available).forEach(r=>{
+    const id=r.name+r.tld, inCart=cart.some(c=>c.id===id);
+    if(r.available){
+      const feat=r.tld==='.com'||r.tld==='.io';
+      const tag=r.tag==='best'?'<span class="res-tag best">Mejor opción</span>':r.tag==='hot'?'<span class="res-tag hot">Tendencia</span>':'';
+      html+=`<div class="res-card ${feat?'featured':''}"><div class="res-left"><span class="res-status avail"></span><span class="res-name">${esc(r.name)}<span class="tld">${r.tld}</span></span>${tag}</div><div class="res-right"><div class="res-price"><span class="now">${px(r.price)}</span><span class="per">/año · renueva ${px(r.renew)}</span></div><button class="btn ${inCart?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleCart('${esc(r.name)}','${r.tld}',${r.price},${r.renew})">${inCart?'✓ Añadido':'+ Añadir'}</button></div></div>`;
+    }else{
+      html+=`<div class="res-card"><div class="res-left"><span class="res-status taken"></span><span class="res-name" style="color:var(--mut)">${esc(r.name)}<span style="color:var(--mut2)">${r.tld}</span></span></div><div class="res-right"><span class="res-taken">No disponible</span></div></div>`;
+    }
+  });
+  box.innerHTML=html;
+}
+/* ---- AI ---- */
+function aiPrompt(t){document.getElementById('aiInput').value=t;doAI();}
+async function doAI(){
+  const p=document.getElementById('aiInput').value.trim(),box=document.getElementById('aiResults');
+  if(!p){box.innerHTML='<div class="ai-empty">Describe tu negocio para generar nombres ✨</div>';return;}
+  box.innerHTML='<div class="spinner" style="grid-column:1/-1"></div>';
+  try{
+    const data=await api('/api/ai?prompt='+encodeURIComponent(p));
+    box.innerHTML=data.names.map(n=>{const id=n.name+n.tld,inCart=cart.some(c=>c.id===id);
+      return `<div class="ai-card"><div><div class="nm">${esc(n.name)}<span class="tld">${n.tld}</span></div><div class="px">${px(n.price)}/año · disponible</div></div><button class="btn ${inCart?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleCart('${esc(n.name)}','${n.tld}',${n.price},${n.price})">${inCart?'✓':'+'}</button></div>`;
+    }).join('')||'<div class="ai-empty">Intenta con otra descripción</div>';
+  }catch(e){box.innerHTML='<div class="ai-empty">Error. ¿Está el servidor encendido?</div>';}
+}
+/* ---- CART ---- */
+function toggleCart(name,tld,price,renew){
+  const id=name+tld;
+  if(cart.some(c=>c.id===id))cart=cart.filter(c=>c.id!==id);
+  else{cart.push({id,name,tld,price,renew});showToast(`✓ ${name}${tld} añadido`);}
+  updateCart();if(lastQuery)doSearch();const ai=document.getElementById('aiInput').value.trim();if(ai)doAI();
+}
+function updateCart(){
+  const cnt=document.getElementById('cartCount');cnt.textContent=cart.length;cnt.classList.toggle('hide',cart.length===0);
+  const body=document.getElementById('cartBody'),foot=document.getElementById('cartFoot');
+  if(!cart.length){body.innerHTML='<div class="cart-empty"><div style="font-size:46px;margin-bottom:10px">🛒</div><p style="color:var(--mut);font-weight:500">Tu carrito está vacío</p><p style="font-size:13px;margin-top:6px">Busca un dominio para empezar.</p></div>';foot.innerHTML='';return;}
+  let total=0;
+  body.innerHTML=cart.map(c=>{total+=c.price;return `<div class="cart-item"><div><div class="nm">${esc(c.name)}${c.tld}</div><div class="meta">Registro 1 año · renueva ${px(c.renew)}</div><button class="rm" onclick="toggleCart('${esc(c.name)}','${c.tld}',${c.price},${c.renew})">Quitar</button></div><div style="font-weight:700;font-size:16px">${px(c.price)}</div></div>`}).join('');
+  foot.innerHTML=`<div class="cart-row"><span>Subtotal (${cart.length})</span><span>${px(total)}</span></div><div class="cart-row" style="color:var(--green)"><span>WHOIS + SSL</span><span>Gratis</span></div><div class="cart-row total"><span>Total</span><span>${px(total)}</span></div><button class="btn btn-primary" onclick="checkout()">⚡ Comprar en 1 clic</button><p style="text-align:center;color:var(--mut2);font-size:12px;margin-top:10px">Sin upsells. Sin sorpresas.</p>`;
+}
+function openCart(){document.getElementById('drawer').classList.add('show');document.getElementById('overlay').classList.add('show');}
+function closeCart(){document.getElementById('drawer').classList.remove('show');document.getElementById('overlay').classList.remove('show');}
+/* ---- AUTH ---- */
+function openAuth(mode){
+  const inner=document.getElementById('modalInner');
+  inner.innerHTML=`<h3>Bienvenido a Dominzo</h3><p class="msub">Crea tu cuenta o inicia sesión para registrar dominios.</p><div class="tabs"><button id="tabLogin" class="${mode==='login'?'on':''}" onclick="openAuth('login')">Iniciar sesión</button><button class="${mode==='reg'?'on':''}" onclick="openAuth('reg')">Crear cuenta</button></div><div class="err" id="authErr"></div><div class="fld" style="${mode==='reg'?'':'display:none'}"><label>Nombre</label><input id="auName" placeholder="Tu nombre"></div><div class="fld"><label>Email</label><input id="auEmail" type="email" placeholder="tu@email.com"></div><div class="fld"><label>Contraseña</label><input id="auPass" type="password" placeholder="••••••••"></div><button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;margin-top:6px" onclick="submitAuth()">${mode==='login'?'Entrar':'Crear cuenta'}</button><button class="btn btn-soft" style="width:100%;justify-content:center;margin-top:10px" onclick="closeModal()">Cancelar</button>`;
+  inner.dataset.mode=mode;document.getElementById('modal').classList.add('show');
+}
+async function submitAuth(){
+  const mode=document.getElementById('modalInner').dataset.mode;
+  const email=document.getElementById('auEmail').value.trim(),pass=document.getElementById('auPass').value;
+  const name=mode==='reg'?document.getElementById('auName').value.trim():'';
+  const err=document.getElementById('authErr');
+  if(!email||!pass||(mode==='reg'&&!name)){err.textContent='Completa todos los campos';err.classList.add('show');return;}
+  try{
+    const data=await api(mode==='reg'?'/api/register':'/api/login',{method:'POST',body:JSON.stringify(mode==='reg'?{name,email,pass}:{email,pass})});
+    token=data.token;user=data.user;localStorage.setItem('dz_token',token);setUserUI();closeModal();showToast(`👋 Hola, ${user.name}`);
+    if(cart.length)checkout();
+  }catch(e){err.textContent=e.message;err.classList.add('show');}
+}
+function setUserUI(){
+  var mlb=document.getElementById('mLoginBtn');
+  if(user){document.getElementById('loginBtn').style.display='none';const chip=document.getElementById('userChip');chip.style.display='flex';document.getElementById('userName').textContent=user.name.split(' ')[0];document.getElementById('userAv').textContent=user.name[0].toUpperCase();if(mlb){mlb.textContent='Mi panel';mlb.onclick=function(){closeMobileMenu();showDash();};}}
+  else{document.getElementById('loginBtn').style.display='';document.getElementById('userChip').style.display='none';if(mlb){mlb.textContent='Iniciar sesión';mlb.onclick=function(){closeMobileMenu();openAuth('login');};}}
+}
+function logout(){token=null;user=null;localStorage.removeItem('dz_token');setUserUI();showHome();showToast('Sesión cerrada');}
+/* ---- CHECKOUT ---- */
+function checkout(){
+  closeCart();
+  if(!user){openAuth('login');showToast('Inicia sesión para completar la compra');return;}
+  const total=cart.reduce((s,c)=>s+c.price,0);
+  document.getElementById('modalInner').innerHTML=`<h3>Checkout en 1 clic ⚡</h3><p class="msub">${cart.length} dominio${cart.length>1?'s':''} · Total <b style="color:var(--ink)">${px(total)}</b></p><div class="err" id="ckErr"></div><div class="fld"><label>Número de tarjeta</label><input placeholder="4242 4242 4242 4242"></div><div class="fld-row"><div class="fld" style="flex:1"><label>Vencimiento</label><input placeholder="12/28"></div><div class="fld" style="flex:1"><label>CVC</label><input placeholder="123"></div></div><button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px" onclick="confirmPay()">Pagar ${px(total)} y registrar</button><button class="btn btn-soft" style="width:100%;justify-content:center;margin-top:10px" onclick="closeModal()">Cancelar</button><p style="text-align:center;color:var(--mut2);font-size:12px;margin-top:14px">🔒 Pago demo · No se cobra nada real</p>`;
+  document.getElementById('modal').classList.add('show');
+}
+async function confirmPay(){
+  try{
+    await api('/api/checkout',{method:'POST',body:JSON.stringify({items:cart})});
+    const names=cart.map(c=>c.name+c.tld);
+    document.getElementById('modalInner').innerHTML=`<div style="text-align:center"><div class="success-check"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#12a150" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><h3>¡Registrado! 🎉</h3><p class="msub" style="margin-bottom:18px">Tus dominios ya están activos con SSL y privacidad.</p><div style="background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:left;margin-bottom:18px">${names.map(n=>`<div style="padding:6px 0;display:flex;align-items:center;gap:8px"><span style="color:var(--green)">●</span> <b>${esc(n)}</b> <span style="color:var(--mut2);font-size:12px;margin-left:auto">Activo</span></div>`).join('')}</div><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="closeModal();showDash()">Ir a mi panel →</button></div>`;
+    cart=[];updateCart();
+  }catch(e){const er=document.getElementById('ckErr');if(er){er.textContent=e.message;er.classList.add('show');}}
+}
+/* ---- DASHBOARD ---- */
+async function loadDash(){
+  document.getElementById('dashHi').textContent=`Hola, ${user.name.split(' ')[0]} 👋`;
+  document.getElementById('dashWel').textContent='Aquí está el resumen de tus dominios.';
+  try{
+    const [stats,doms]=await Promise.all([api('/api/stats'),api('/api/domains')]);
+    document.getElementById('dashStats').innerHTML=`<div class="stat"><div class="lbl">Dominios activos</div><div class="val">${stats.count}</div><div class="sub">${stats.count?'Todos con SSL ✓':'—'}</div></div><div class="stat"><div class="lbl">Visitas totales</div><div class="val">${stats.visits.toLocaleString()}</div><div class="sub">${stats.count?'▲ tráfico activo':'—'}</div></div><div class="stat"><div class="lbl">Próxima renovación</div><div class="val">${stats.nextDays!=null?stats.nextDays+'d':'—'}</div><div class="sub" style="color:var(--mut)">${stats.nextDomain||'Sin dominios'}</div></div>`;
+    const box=document.getElementById('dashDomains');
+    if(!doms.domains.length){box.innerHTML='<div class="empty-dash"><div style="font-size:42px;margin-bottom:8px">🌐</div><p style="font-weight:500;margin-bottom:14px">Aún no tienes dominios.</p><button class="btn btn-primary btn-sm" onclick="showHome();scrollToId(\'buscar\')">Buscar mi primer dominio</button></div>';return;}
+    box.innerHTML=doms.domains.map(d=>{const exp=new Date(d.expires).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'});return `<div class="dd"><div><div class="nm">${esc(d.name)}${d.tld}</div><div class="meta">Renueva ${px(d.renew)} · vence ${exp}</div></div><div style="display:flex;align-items:center;gap:18px"><div class="vis">${(d.visits||0).toLocaleString()}<div class="meta" style="font-weight:400">visitas</div></div><span class="pill">● Activo · SSL</span></div></div>`}).join('');
+  }catch(e){console.error(e);}
+}
+/* ---- misc ---- */
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+let tT;function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tT);tT=setTimeout(()=>t.classList.remove('show'),2400);}
+/* scroll reveal */
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.12});
+/* nav shadow on scroll */
+window.addEventListener('scroll',()=>{document.getElementById('nav').classList.toggle('scrolled',window.scrollY>10);},{passive:true});
+/* listeners */
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+document.getElementById('aiInput').addEventListener('keydown',e=>{if(e.key==='Enter')doAI()});
+const sb=document.getElementById('searchBox'),sin=document.getElementById('searchInput');
+sin.addEventListener('focus',()=>sb.classList.add('focus'));sin.addEventListener('blur',()=>sb.classList.remove('focus'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeCart();closeModal();document.querySelectorAll('.mini-sel').forEach(m=>m.classList.remove('open'))}});
+/* init */
+(async()=>{
+  collectTranslatable();
+  buildSelectors();
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  if(token){try{const d=await api('/api/me');user=d.user;setUserUI();}catch{token=null;localStorage.removeItem('dz_token');}}
+  updateCart();
+})();
+</script>
+</body>
+</html>
